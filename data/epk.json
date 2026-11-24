@@ -5,12 +5,6 @@
     "genre": "Pop-Alternatif / J-Pop",
     "formedYear": "2018",
     "releasedTracksCount": "11 Lagu",
-    "era": {
-      "enabled": true,
-      "label": "Rilisan Mendatang",
-      "title": "Per***** Bintang Ja***",
-      "subtitle": "Tema visual EPK menyambut single terbaru Eve's Lily"
-    },
     "updatedAt": "2026-11-24"
   },
   "hero": {
@@ -21,14 +15,14 @@
     "logoWordmark": "assets/brand/logo-emblem-wordmark.png",
     "logoWordmarkWidth": 799,
     "logoWordmarkHeight": 517,
-    "wordmarkWhite": "assets/brand/wordmark-white.png",
-    "wordmarkWhiteWidth": 799,
-    "wordmarkWhiteHeight": 517,
-    "lilyEmblem": "assets/brand/lily-emblem-white.png",
-    "lilyEmblemWidth": 1599,
-    "lilyEmblemHeight": 1035,
-    "lyricQuote": "Kini tangguh 'ku tantang pagi. Usai lara tak takut lagi. Kar'na hadirmu di sini, langit pun bernyanyi.",
-    "lyricSource": "Langit pun Bernyanyi (2025)"
+    "lilyIconOnly": "assets/brand/lily-icon-only.png",
+    "lilyIconWidth": 474,
+    "lilyIconHeight": 454,
+    "wordmarkTextOnly": "assets/brand/wordmark-text-only.png",
+    "wordmarkTextWidth": 1308,
+    "wordmarkTextHeight": 208,
+    "lyricQuote": "Kala sang bintang di angkasa jatuh menari dalam kirana. Datang tawarkan mimpi yang kau cari. Apa yang 'kan kau pinta?",
+    "lyricSource": "Per**** Bintang Ja*** (Soon on 2027)"
   },
   "biography": {
     "headline": "Eve's Lily: Langit pun Bernyanyi",
@@ -78,6 +72,7 @@
       "name": "Kezia",
       "role": "Vocal",
       "photo": "assets/members/kezia.jpg",
+      "photoPosition": "50% 24%",
       "width": 1560,
       "height": 1040,
       "note": "Bergabung sebagai vokalis sejak 2025"
@@ -87,6 +82,7 @@
       "name": "Heldi",
       "role": "Guitar",
       "photo": "assets/members/heldi.jpg",
+      "photoPosition": "50% 22%",
       "width": 800,
       "height": 533,
       "note": "Formasi awal sejak 2018"
@@ -96,6 +92,7 @@
       "name": "Haikal",
       "role": "Guitar",
       "photo": "assets/members/haikal.jpg",
+      "photoPosition": "50% 26%",
       "width": 800,
       "height": 800,
       "note": "Bergabung sejak 2022"
@@ -105,6 +102,7 @@
       "name": "Yusee",
       "role": "Bass",
       "photo": "assets/members/yusee.jpg",
+      "photoPosition": "50% 56%",
       "width": 533,
       "height": 799,
       "note": "Formasi awal sejak 2018"
@@ -114,6 +112,7 @@
       "name": "Eza",
       "role": "Drum",
       "photo": "assets/members/eza.jpg",
+      "photoPosition": "50% 28%",
       "width": 799,
       "height": 533,
       "note": "Formasi awal sejak 2018"
@@ -123,6 +122,7 @@
       "name": "Rosa",
       "role": "Add. Vocal",
       "photo": "assets/members/rosa.jpg",
+      "photoPosition": "50% 22%",
       "width": 799,
       "height": 533,
       "note": "Additional Vocal & kolaborator panggung"
@@ -136,12 +136,34 @@
   },
   "discography": [
     {
+      "id": "perayaan-bintang-jatuh",
+      "title": "Per***** Bintang Ja***",
+      "type": "Single",
+      "year": "To be announced",
+      "releaseDate": "Soon",
+      "subtitle": "Rilisan Mendatang",
+      "upcoming": true,
+      "blurredCover": true,
+      "featured": false,
+      "category": "Single",
+      "cover": "assets/covers/11-perayaan-bintang-jatuh-blur.jpg",
+      "coverWidth": 480,
+      "coverHeight": 480,
+      "tracklist": [],
+      "spotifyUrl": "",
+      "appleMusicUrl": "",
+      "youtubeMusicUrl": "",
+      "audioPreviewUrl": ""
+    },
+    {
       "id": "langit-pun-bernyanyi",
       "title": "Langit pun Bernyanyi",
       "type": "Single",
       "year": "2025",
       "releaseDate": "29 Agustus 2025",
       "subtitle": "Era baru bersama vokalis Kezia",
+      "upcoming": false,
+      "blurredCover": false,
       "featured": true,
       "category": "Single",
       "cover": "assets/covers/10-langit-pun-bernyanyi.jpg",
@@ -149,6 +171,8 @@
       "coverHeight": 480,
       "tracklist": [],
       "spotifyUrl": "",
+      "appleMusicUrl": "",
+      "youtubeMusicUrl": "",
       "audioPreviewUrl": ""
     },
     {
@@ -158,6 +182,8 @@
       "year": "2024",
       "releaseDate": "7 Juli 2024",
       "subtitle": "",
+      "upcoming": false,
+      "blurredCover": false,
       "featured": false,
       "category": "Single",
       "cover": "assets/covers/09-teman-saja.jpg",
@@ -165,6 +191,8 @@
       "coverHeight": 480,
       "tracklist": [],
       "spotifyUrl": "",
+      "appleMusicUrl": "",
+      "youtubeMusicUrl": "",
       "audioPreviewUrl": ""
     },
     {
@@ -174,6 +202,8 @@
       "year": "2024",
       "releaseDate": "Januari 2024",
       "subtitle": "",
+      "upcoming": false,
+      "blurredCover": false,
       "featured": false,
       "category": "Single",
       "cover": "assets/covers/08-janji.jpg",
@@ -181,6 +211,8 @@
       "coverHeight": 480,
       "tracklist": [],
       "spotifyUrl": "",
+      "appleMusicUrl": "",
+      "youtubeMusicUrl": "",
       "audioPreviewUrl": ""
     },
     {
@@ -190,6 +222,8 @@
       "year": "2023",
       "releaseDate": "Desember 2023",
       "subtitle": "Conclusion of the Trilogy",
+      "upcoming": false,
+      "blurredCover": false,
       "featured": false,
       "category": "Trilogi",
       "cover": "assets/covers/07-syair-babak-akhir.jpg",
@@ -197,6 +231,8 @@
       "coverHeight": 480,
       "tracklist": [],
       "spotifyUrl": "",
+      "appleMusicUrl": "",
+      "youtubeMusicUrl": "",
       "audioPreviewUrl": ""
     },
     {
@@ -206,6 +242,8 @@
       "year": "2023",
       "releaseDate": "November 2023",
       "subtitle": "Second Track of the Trilogy",
+      "upcoming": false,
+      "blurredCover": false,
       "featured": false,
       "category": "Trilogi",
       "cover": "assets/covers/06-ambivalen.jpg",
@@ -213,6 +251,8 @@
       "coverHeight": 480,
       "tracklist": [],
       "spotifyUrl": "",
+      "appleMusicUrl": "",
+      "youtubeMusicUrl": "",
       "audioPreviewUrl": ""
     },
     {
@@ -222,6 +262,8 @@
       "year": "2023",
       "releaseDate": "Oktober 2023",
       "subtitle": "Trilogy Opener, OST Troublemaker 2: Beyond Dreams",
+      "upcoming": false,
+      "blurredCover": false,
       "featured": false,
       "category": "Trilogi",
       "cover": "assets/covers/05-bukan-pemuja.jpg",
@@ -229,6 +271,8 @@
       "coverHeight": 480,
       "tracklist": [],
       "spotifyUrl": "",
+      "appleMusicUrl": "",
+      "youtubeMusicUrl": "",
       "audioPreviewUrl": ""
     },
     {
@@ -238,6 +282,8 @@
       "year": "2023",
       "releaseDate": "Pertengahan 2023",
       "subtitle": "Mini Album Pertama",
+      "upcoming": false,
+      "blurredCover": false,
       "featured": false,
       "category": "EP",
       "cover": "assets/covers/04-berawal-ep.jpg",
@@ -252,6 +298,8 @@
         "Bulir Kenangan (Acoustic Version)"
       ],
       "spotifyUrl": "",
+      "appleMusicUrl": "",
+      "youtubeMusicUrl": "",
       "audioPreviewUrl": ""
     },
     {
@@ -261,6 +309,8 @@
       "year": "2022",
       "releaseDate": "2022",
       "subtitle": "",
+      "upcoming": false,
+      "blurredCover": false,
       "featured": false,
       "category": "Single",
       "cover": "assets/covers/03-bulir-kenangan.jpg",
@@ -268,6 +318,8 @@
       "coverHeight": 480,
       "tracklist": [],
       "spotifyUrl": "",
+      "appleMusicUrl": "",
+      "youtubeMusicUrl": "",
       "audioPreviewUrl": ""
     },
     {
@@ -277,6 +329,8 @@
       "year": "2022",
       "releaseDate": "2022",
       "subtitle": "",
+      "upcoming": false,
+      "blurredCover": false,
       "featured": false,
       "category": "Single",
       "cover": "assets/covers/02-perang-batin.jpg",
@@ -284,6 +338,8 @@
       "coverHeight": 480,
       "tracklist": [],
       "spotifyUrl": "",
+      "appleMusicUrl": "",
+      "youtubeMusicUrl": "",
       "audioPreviewUrl": ""
     },
     {
@@ -293,6 +349,8 @@
       "year": "2021",
       "releaseDate": "2021",
       "subtitle": "Single Debut",
+      "upcoming": false,
+      "blurredCover": false,
       "featured": false,
       "category": "Single",
       "cover": "assets/covers/01-menyatu.jpg",
@@ -300,6 +358,8 @@
       "coverHeight": 480,
       "tracklist": [],
       "spotifyUrl": "",
+      "appleMusicUrl": "",
+      "youtubeMusicUrl": "",
       "audioPreviewUrl": ""
     }
   ],
