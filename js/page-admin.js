@@ -666,12 +666,13 @@ function renderMembersSection(workspace) {
 
 function renderDiscographySection(workspace) {
   const items = epkData.discography || [];
+  const latestReleasedIdx = items.findIndex((item) => !item.upcoming);
   workspace.innerHTML = `
     <section class="admin-panel" aria-labelledby="panel-discog-title">
       <div class="admin-panel__head">
         <div>
           <h2 id="panel-discog-title" class="admin-panel__title">Discography (${items.length})</h2>
-          <p class="admin-panel__desc">Kelola rilis mendatang (termasuk opsi cover blur), single, EP, tracklist, serta tautan Spotify, Apple Music, dan YouTube Music per lagu.</p>
+          <p class="admin-panel__desc">Urutkan rilis terbaru di paling atas. Kotak "Rilisan Terbaru" di halaman Home otomatis mengikuti rilis teratas yang bukan Rilisan Mendatang.</p>
         </div>
         <button type="button" id="add-release-btn" class="btn btn--primary btn--sm">+ Tambah Rilis di Atas</button>
       </div>
@@ -682,9 +683,8 @@ function renderDiscographySection(workspace) {
             (r, idx) => `
             <div class="item-card" data-rel-idx="${idx}">
               <div class="item-card__head">
-                <h3 class="item-card__title">${escapeHtml(r.title || 'Rilis Baru')} (${escapeHtml(r.year || 'Tahun')})${r.upcoming ? ' [Rilisan Mendatang]' : ''}${r.featured ? ' [Sorotan Terbaru]' : ''}</h3>
+                <h3 class="item-card__title">${escapeHtml(r.title || 'Rilis Baru')} (${escapeHtml(r.year || 'Tahun')})${r.upcoming ? ' [Rilisan Mendatang]' : ''}${idx === latestReleasedIdx ? ' [Rilisan Terbaru · Otomatis]' : ''}</h3>
                 <div class="item-card__controls">
-                  <button type="button" class="btn btn--outline-dark btn--sm" data-set-featured="${idx}" ${r.featured || r.upcoming ? 'disabled' : ''}>Jadikan Terbaru</button>
                   <button type="button" class="btn btn--outline-dark btn--sm" data-move-up="${idx}" ${idx === 0 ? 'disabled' : ''}>Naik</button>
                   <button type="button" class="btn btn--outline-dark btn--sm" data-move-down="${idx}" ${idx === items.length - 1 ? 'disabled' : ''}>Turun</button>
                   <button type="button" class="btn btn--danger btn--sm" data-delete-idx="${idx}">Hapus</button>
@@ -813,17 +813,6 @@ function renderDiscographySection(workspace) {
       if (width) epkData.discography[idx].coverWidth = width;
       if (height) epkData.discography[idx].coverHeight = height;
       persistDraft();
-    });
-  });
-
-  workspace.querySelectorAll('[data-set-featured]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const target = Number(btn.dataset.setFeatured);
-      epkData.discography.forEach((item, i) => {
-        item.featured = i === target;
-      });
-      persistDraft();
-      renderWorkspace();
     });
   });
 

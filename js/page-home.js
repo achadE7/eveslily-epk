@@ -129,10 +129,8 @@ function renderDiscography(data) {
     ? `https://open.spotify.com/embed/artist/${encodeURIComponent(dsp.spotifyArtistId)}?utm_source=generator&theme=0`
     : extractSpotifyEmbedUrl(dsp.spotifyArtistUrl);
 
-  const featured =
-    releases.find((r) => r.featured && !r.upcoming) ||
-    releases.find((r) => !r.upcoming) ||
-    releases[0];
+  // Automatically spotlight the newest released entry (first non-upcoming item in discography)
+  const featured = releases.find((r) => !r.upcoming) || releases[0];
 
   if (!releases.length) {
     spotlightEl.innerHTML = '';
