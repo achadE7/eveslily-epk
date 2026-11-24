@@ -1,0 +1,182 @@
+/* Eve's Lily EPK - Design Tokens & Base Accessibility Layer
+ * Theme: "Perayaan Bintang Jatuh" (Celestial Nocturne Editorial)
+ * Verified WCAG AA contrast ratios via contrast-check.py
+ */
+
+:root {
+  /* Core 1: Cosmos Midnight */
+  --bg-cosmos: #060813;
+  --bg-cosmos-elevated: #0f1426;
+  --bg-cosmos-nebula: #151d38;
+
+  /* Core 2: Starlight Paper */
+  --bg-paper: #f5f3ee;
+  --bg-paper-card: #ffffff;
+
+  /* Ink & Neutrals */
+  --ink-on-dark: #f4f5f8;
+  --ink-muted-dark: #a9b4cc;
+  --ink-on-light: #0d1120;
+  --ink-muted-light: #444d63;
+
+  /* Borders (hairline dividers vs. 3:1 interactive boundaries) */
+  --rule-dark: rgba(244, 245, 248, 0.16);
+  --rule-light: rgba(13, 17, 32, 0.16);
+  --border-dark: #6e7b9c;
+  --border-light: #5d657a;
+
+  /* One Deliberate Accent: Meteor Gold */
+  --accent-gold: #f2c97d;
+  --accent-gold-hover: #f8dba2;
+  --accent-gold-ink-on-gold: #0b0e1a;
+  --accent-gold-on-light: #7d500b;
+
+  /* Semantic feedback (always paired with icons + text) */
+  --status-ok: #7be0ad;
+  --status-err: #ff8a8a;
+
+  /* Typography */
+  --font-display: 'Italiana', 'Cormorant Garamond', Georgia, serif;
+  --font-editorial: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Fluid Type Scale */
+  --text-xs: clamp(0.78rem, 0.74rem + 0.15vw, 0.85rem);
+  --text-sm: clamp(0.88rem, 0.84rem + 0.18vw, 0.96rem);
+  --text-base: clamp(0.98rem, 0.94rem + 0.2vw, 1.06rem);
+  --text-lg: clamp(1.12rem, 1.04rem + 0.35vw, 1.32rem);
+  --text-xl: clamp(1.45rem, 1.25rem + 0.8vw, 2rem);
+  --text-display: clamp(2.4rem, 1.8rem + 3vw, 4.4rem);
+
+  /* Radii (R-11: deliberate split between frames and pill controls) */
+  --radius-frame: 4px;
+  --radius-panel: 8px;
+  --radius-pill: 999px;
+
+  /* Spacing & Container */
+  --container-max: 1180px;
+  --gutter: clamp(1rem, 3.5vw, 2.5rem);
+  --section-pad-y: clamp(3.5rem, 7vw, 6.5rem);
+  --nav-height: 68px;
+
+  /* Elevation (R-12: shadow only for floating dialogs/toasts) */
+  --shadow-modal: 0 24px 64px rgba(2, 4, 12, 0.72);
+  --shadow-toast: 0 12px 32px rgba(2, 4, 12, 0.55);
+
+  /* Transitions */
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--nav-height) + 1.5rem);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.65;
+  color: var(--ink-on-dark);
+  background-color: var(--bg-cosmos);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg,
+video,
+iframe {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+/* R-39 Base Interaction Affordance Layer */
+a[href],
+button:not(:disabled),
+summary,
+select:not(:disabled),
+label[for],
+input[type='checkbox']:not(:disabled),
+input[type='radio']:not(:disabled),
+[role='button']:not([aria-disabled='true']),
+[role='tab']:not([aria-disabled='true']) {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+/* R-32 High-Contrast Focus Indicators */
+:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 3px;
+}
+
+.band--paper :focus-visible,
+[data-surface='paper'] :focus-visible {
+  outline-color: var(--accent-gold-on-light);
+}
+
+/* Screen Reader Utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip Link */
+.skip-link {
+  position: fixed;
+  top: -120px;
+  left: 1rem;
+  z-index: 1200;
+  background: var(--accent-gold);
+  color: var(--accent-gold-ink-on-gold);
+  font-weight: 700;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-frame);
+  text-decoration: none;
+  transition: top 160ms ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

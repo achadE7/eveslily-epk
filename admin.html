@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor EPK | Eve's Lily Content Studio</title>
+  <meta name="description" content="Editor visual bawaan untuk mengelola profil, discography, foto panggung, jadwal, video, personel, dan sinkronisasi GitHub EPK Eve's Lily.">
+  <link rel="icon" type="image/png" href="./assets/brand/lily-emblem-white.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Italiana&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/tokens.css">
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body class="admin-body">
+  <a href="#admin-workspace" class="skip-link">Lewati ke area editor</a>
+
+  <header class="admin-topbar">
+    <div class="admin-topbar__inner">
+      <div class="admin-topbar__left">
+        <a href="./index.html" class="brand-link" aria-label="Kembali ke halaman EPK Eve's Lily">
+          <svg class="brand-link__emblem" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2L12 2z"/>
+          </svg>
+          <h1 class="admin-topbar__title">Editor EPK</h1>
+        </a>
+        <span id="admin-status" class="admin-status" data-state="ok" role="status" aria-live="polite">
+          Memuat data...
+        </span>
+      </div>
+
+      <div class="admin-topbar__actions">
+        <a href="./index.html" id="btn-preview-epk" class="btn btn--outline-dark btn--sm">Preview EPK</a>
+        <button type="button" id="btn-download-json" class="btn btn--outline-dark btn--sm">Download epk.json</button>
+        <button type="button" id="btn-quick-publish" class="btn btn--gold btn--sm">Simpan ke GitHub</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-shell">
+    <div>
+      <button
+        type="button"
+        id="admin-nav-toggle"
+        class="btn btn--outline-dark admin-nav-mobile-trigger"
+        aria-expanded="false"
+        aria-controls="admin-sidebar"
+      >
+        <span id="admin-mobile-active-label">Bagian: Hero &amp; Tema Era</span>
+        <span>Pilih Bagian</span>
+      </button>
+
+      <aside id="admin-sidebar" class="admin-sidebar" data-open="false" aria-label="Navigasi bagian editor EPK">
+        <div>
+          <p class="admin-nav-group__label">Konten EPK</p>
+          <div class="admin-nav-list" role="tablist" aria-orientation="vertical">
+            <button type="button" class="admin-nav-btn" data-section="hero" aria-current="true">
+              <span>Hero &amp; Tema Era</span>
+            </button>
+            <button type="button" class="admin-nav-btn" data-section="biography">
+              <span>Biografi &amp; Filosofi</span>
+            </button>
+            <button type="button" class="admin-nav-btn" data-section="members">
+              <span>Personel</span>
+              <span class="admin-nav-btn__count" data-count="members">0</span>
+            </button>
+            <button type="button" class="admin-nav-btn" data-section="discography">
+              <span>Discography</span>
+              <span class="admin-nav-btn__count" data-count="discography">0</span>
+            </button>
+            <button type="button" class="admin-nav-btn" data-section="press">
+              <span>Press Photos</span>
+              <span class="admin-nav-btn__count" data-count="press">0</span>
+            </button>
+            <button type="button" class="admin-nav-btn" data-section="shows">
+              <span>Jadwal Panggung</span>
+              <span class="admin-nav-btn__count" data-count="shows">0</span>
+            </button>
+            <button type="button" class="admin-nav-btn" data-section="videos">
+              <span>Video YouTube</span>
+              <span class="admin-nav-btn__count" data-count="videos">0</span>
+            </button>
+            <button type="button" class="admin-nav-btn" data-section="contact">
+              <span>Kontak &amp; DSP</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <p class="admin-nav-group__label">Publikasi &amp; Cadangan</p>
+          <div class="admin-nav-list">
+            <button type="button" class="admin-nav-btn" data-section="github">
+              <span>Sinkronisasi GitHub</span>
+            </button>
+            <button type="button" class="admin-nav-btn" data-section="backup">
+              <span>Impor / Reset JSON</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <main id="admin-workspace" class="admin-main" aria-live="polite">
+      <div class="state-box" role="status">
+        <p class="state-box__title">Menyiapkan Editor EPK Eve's Lily...</p>
+        <p class="state-box__desc">Mengambil data dari data/epk.json dan memeriksa draft lokal.</p>
+      </div>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <p style="margin:0">Editor EPK Eve's Lily. Token GitHub hanya disimpan di browser ini dan tidak pernah masuk ke file epk.json.</p>
+      <nav class="site-footer__nav" aria-label="Tautan cepat EPK">
+        <a href="./index.html" class="site-footer__link">Lihat Home</a>
+        <a href="./press-photos.html" class="site-footer__link">Press Photos</a>
+        <a href="./biography.html" class="site-footer__link">Biography</a>
+        <a href="./schedule.html" class="site-footer__link">Schedule</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script type="module" src="./js/page-admin.js"></script>
+</body>
+</html>
