@@ -1,12 +1,5 @@
 /**
- * Shared UI helpers for Eve's Lily EPK:
- * - Mobile navigation drawer with Escape + focus return
- * - Accessible toast announcements
- * - Lightbox modal for Press Photos (with Prev/Next keyboard navigation)
- * - YouTube Video modal (click-to-play facade)
- * - HTML5 Audio preview dock for custom MP3/M4A previews
- * - Contact booking block renderer with WhatsApp, Email, and 1-click Copy
- * - Single-pass scroll reveal observer
+ * Shared UI helpers for Eve's Lily EPK
  */
 
 export function escapeHtml(str) {
@@ -37,7 +30,14 @@ export function extractSpotifyEmbedUrl(url) {
 export function safeUrl(url) {
   const raw = String(url || '').trim();
   if (!raw) return '#';
-  if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('mailto:') || raw.startsWith('./') || raw.startsWith('assets/') || raw.startsWith('data:image/')) {
+  if (
+    raw.startsWith('http://') ||
+    raw.startsWith('https://') ||
+    raw.startsWith('mailto:') ||
+    raw.startsWith('./') ||
+    raw.startsWith('assets/') ||
+    raw.startsWith('data:image/')
+  ) {
     return raw;
   }
   return '#';
@@ -170,9 +170,7 @@ function ensureModalRoot() {
 
   document.addEventListener('keydown', (event) => {
     if (!activeModal || activeModal.hidden) return;
-    if (event.key === 'Escape') {
-      closeMediaModal();
-    }
+    if (event.key === 'Escape') closeMediaModal();
   });
 
   return modal;
@@ -207,7 +205,7 @@ export function openVideoModal(video, triggerEl) {
       <div class="modal__video-wrap">
         <iframe
           src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(ytId)}?autoplay=1&rel=0"
-          title="${escapeHtml(video.title || 'Video YouTube Eve\'s Lily')}"
+          title="${escapeHtml(video.title || "Video YouTube Eve's Lily")}"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen
           width="854"
@@ -219,16 +217,16 @@ export function openVideoModal(video, triggerEl) {
     bodyEl.innerHTML = `
       <div class="state-box">
         <p class="state-box__title">Tautan video YouTube belum valid</p>
-        <p class="state-box__desc">Buka video langsung di YouTube atau perbaiki tautannya melalui halaman Editor EPK.</p>
+        <p class="state-box__desc">Buka video langsung di YouTube.</p>
       </div>
     `;
   }
 
   const externalUrl = safeUrl(video.youtubeUrl);
   footerEl.innerHTML = `
-    <span class="section-note" style="margin:0">${escapeHtml([video.venue, video.year].filter(Boolean).join(', '))}</span>
+    <span class="modal__meta">${escapeHtml([video.venue, video.year].filter(Boolean).join(', '))}</span>
     <div style="display:flex;gap:0.65rem;flex-wrap:wrap">
-      ${externalUrl !== '#' ? `<a href="${escapeHtml(externalUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn--gold btn--sm">Buka di YouTube</a>` : ''}
+      ${externalUrl !== '#' ? `<a href="${escapeHtml(externalUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--sm">Buka di YouTube</a>` : ''}
       <button type="button" class="btn btn--outline-dark btn--sm" data-close-modal>Tutup</button>
     </div>
   `;
@@ -267,11 +265,11 @@ export function openPhotoLightbox(photos, startIndex, triggerEl) {
 
     const igUrl = safeUrl(item.instagramUrl);
     footerEl.innerHTML = `
-      <span class="section-note" style="margin:0">${escapeHtml([item.venue, item.year].filter(Boolean).join(', '))}</span>
+      <span class="modal__meta">${escapeHtml([item.venue, item.year].filter(Boolean).join(', '))}</span>
       <div style="display:flex;gap:0.55rem;flex-wrap:wrap">
         <button type="button" class="btn btn--outline-dark btn--sm" id="lb-prev" ${photos.length <= 1 ? 'disabled' : ''}>Sebelumnya</button>
         <button type="button" class="btn btn--outline-dark btn--sm" id="lb-next" ${photos.length <= 1 ? 'disabled' : ''}>Berikutnya</button>
-        ${igUrl !== '#' ? `<a href="${escapeHtml(igUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn--gold btn--sm">Lihat di Instagram</a>` : ''}
+        ${igUrl !== '#' ? `<a href="${escapeHtml(igUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--sm">Lihat di Instagram</a>` : ''}
       </div>
     `;
 
@@ -308,7 +306,7 @@ export function openPhotoLightbox(photos, startIndex, triggerEl) {
 }
 
 /* ==========================================================================
-   Audio Preview Player (for releases with audioPreviewUrl)
+   Audio Preview Player
    ========================================================================== */
 let audioElement = null;
 let currentTrackId = null;
@@ -324,7 +322,7 @@ function ensureAudioDock() {
   dock.setAttribute('role', 'region');
   dock.setAttribute('aria-label', 'Pemutar pratinjau audio');
   dock.innerHTML = `
-    <button type="button" class="btn btn--gold btn--sm" id="audio-dock-toggle">Jeda</button>
+    <button type="button" class="btn btn--primary btn--sm" id="audio-dock-toggle">Jeda</button>
     <div class="audio-dock__info">
       <p class="audio-dock__title" id="audio-dock-title"></p>
       <p class="audio-dock__status" id="audio-dock-status">Memutar pratinjau lagu</p>
@@ -406,12 +404,12 @@ export function playAudioPreview(release) {
 }
 
 /* ==========================================================================
-   Shared Contact Section Renderer
+   Shared Contact Section Renderer (Items 6, 11, 12)
    ========================================================================== */
 export function renderContactSection(containerEl, data) {
   if (!containerEl || !data || !data.contact) return;
   const c = data.contact;
-  const wordmark = data.hero?.wordmarkWhite || 'assets/brand/wordmark-white.png';
+  const textWordmark = data.hero?.wordmarkTextOnly || 'assets/brand/wordmark-text-only.png';
   const waHref = c.whatsappNumber
     ? `https://wa.me/${encodeURIComponent(c.whatsappNumber)}?text=${encodeURIComponent("Halo Eve's Lily, kami ingin bertanya mengenai jadwal booking/press kit.")}`
     : '#';
@@ -439,10 +437,7 @@ export function renderContactSection(containerEl, data) {
     />
     <div class="contact-band__scrim" aria-hidden="true"></div>
     <div class="container contact-band__inner">
-      <div>
-        <h2 class="section-title">Contact</h2>
-        <p class="section-note" style="margin-inline:auto">Untuk penawaran panggung, liputan media, kolaborasi, dan kebutuhan press kit Eve's Lily.</p>
-      </div>
+      <h2 class="section-title contact-band__title">Contact</h2>
 
       <div class="contact-grid">
         <div class="contact-panel">
@@ -457,7 +452,7 @@ export function renderContactSection(containerEl, data) {
             </a>
           </div>
           <div class="contact-actions">
-            <a class="btn btn--gold btn--sm" href="${escapeHtml(waHref)}" target="_blank" rel="noopener noreferrer">Chat WhatsApp</a>
+            <a class="btn btn--primary btn--sm" href="${escapeHtml(waHref)}" target="_blank" rel="noopener noreferrer">Chat WhatsApp</a>
             <a class="btn btn--outline-dark btn--sm" href="${escapeHtml(mailHref)}">Kirim Email</a>
             <button type="button" class="btn btn--outline-dark btn--sm" id="copy-booking-btn">Salin Kontak</button>
           </div>
@@ -466,17 +461,17 @@ export function renderContactSection(containerEl, data) {
         <div class="contact-panel">
           <p class="contact-panel__label">Get Social</p>
           <div class="social-list">
-            ${socialsHtml || '<p class="section-note">Belum ada tautan media sosial.</p>'}
+            ${socialsHtml || '<p class="modal__meta">Belum ada tautan media sosial.</p>'}
           </div>
         </div>
       </div>
 
       <img
         class="contact-wordmark"
-        src="${escapeHtml(safeUrl(wordmark))}"
-        alt="Wordmark Eve's Lily"
-        width="${Number(data.hero?.wordmarkWhiteWidth) || 799}"
-        height="${Number(data.hero?.wordmarkWhiteHeight) || 517}"
+        src="${escapeHtml(safeUrl(textWordmark))}"
+        alt="Eve's Lily"
+        width="${Number(data.hero?.wordmarkTextWidth) || 1308}"
+        height="${Number(data.hero?.wordmarkTextHeight) || 208}"
         loading="lazy"
       />
     </div>
@@ -489,7 +484,7 @@ export function renderContactSection(containerEl, data) {
       try {
         await navigator.clipboard.writeText(formatted);
         copyBtn.textContent = 'Kontak Tersalin';
-        showToast('Info kontak booking Eve\'s Lily berhasil disalin.');
+        showToast("Info kontak booking Eve's Lily berhasil disalin.");
         window.setTimeout(() => {
           copyBtn.textContent = 'Salin Kontak';
         }, 2400);
@@ -506,7 +501,7 @@ export function renderErrorState(containerEl, message, onRetry) {
     <div class="state-box" role="alert">
       <p class="state-box__title">Data EPK belum berhasil dimuat</p>
       <p class="state-box__desc">${escapeHtml(message || 'Periksa koneksi atau pastikan file data/epk.json tersedia.')}</p>
-      <button type="button" class="btn btn--gold btn--sm" data-retry-load>Muat Ulang Data</button>
+      <button type="button" class="btn btn--primary btn--sm" data-retry-load>Muat Ulang Data</button>
     </div>
   `;
   containerEl.querySelector('[data-retry-load]')?.addEventListener('click', () => {

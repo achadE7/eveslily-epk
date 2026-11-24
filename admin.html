@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Editor EPK | Eve's Lily Content Studio</title>
   <meta name="description" content="Editor visual bawaan untuk mengelola profil, discography, foto panggung, jadwal, video, personel, dan sinkronisasi GitHub EPK Eve's Lily.">
-  <link rel="icon" type="image/png" href="./assets/brand/lily-emblem-white.png">
+  <link rel="icon" type="image/png" href="./assets/brand/lily-icon-only.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Italiana&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -20,9 +20,7 @@
     <div class="admin-topbar__inner">
       <div class="admin-topbar__left">
         <a href="./index.html" class="brand-link" aria-label="Kembali ke halaman EPK Eve's Lily">
-          <svg class="brand-link__emblem" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2L12 2z"/>
-          </svg>
+          <img src="./assets/brand/lily-icon-only.png" alt="" aria-hidden="true" class="brand-link__icon" width="28" height="27">
           <h1 class="admin-topbar__title">Editor EPK</h1>
         </a>
         <span id="admin-status" class="admin-status" data-state="ok" role="status" aria-live="polite">
@@ -33,7 +31,7 @@
       <div class="admin-topbar__actions">
         <a href="./index.html" id="btn-preview-epk" class="btn btn--outline-dark btn--sm">Preview EPK</a>
         <button type="button" id="btn-download-json" class="btn btn--outline-dark btn--sm">Download epk.json</button>
-        <button type="button" id="btn-quick-publish" class="btn btn--gold btn--sm">Simpan ke GitHub</button>
+        <button type="button" id="btn-quick-publish" class="btn btn--primary btn--sm">Simpan ke GitHub</button>
       </div>
     </div>
   </header>
@@ -47,7 +45,7 @@
         aria-expanded="false"
         aria-controls="admin-sidebar"
       >
-        <span id="admin-mobile-active-label">Bagian: Hero &amp; Tema Era</span>
+        <span id="admin-mobile-active-label">Bagian: Hero &amp; Identitas</span>
         <span>Pilih Bagian</span>
       </button>
 
@@ -56,7 +54,7 @@
           <p class="admin-nav-group__label">Konten EPK</p>
           <div class="admin-nav-list" role="tablist" aria-orientation="vertical">
             <button type="button" class="admin-nav-btn" data-section="hero" aria-current="true">
-              <span>Hero &amp; Tema Era</span>
+              <span>Hero &amp; Identitas</span>
             </button>
             <button type="button" class="admin-nav-btn" data-section="biography">
               <span>Biografi &amp; Filosofi</span>

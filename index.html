@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Eve's Lily | Electronic Press Kit</title>
   <meta name="description" content="Electronic Press Kit resmi Eve's Lily, band pop-alternatif bernuansa J-Pop asal Banjarmasin, Kalimantan Selatan. Profil, discography, foto panggung, jadwal, video, dan kontak booking.">
-  <link rel="icon" type="image/png" href="./assets/brand/lily-emblem-white.png">
+  <link rel="icon" type="image/png" href="./assets/brand/lily-icon-only.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Italiana&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,10 +18,8 @@
   <header class="site-header">
     <div class="container site-header__inner">
       <a href="./index.html" class="brand-link" aria-label="Beranda Eve's Lily EPK">
-        <svg class="brand-link__emblem" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2L12 2z"/>
-        </svg>
-        <span class="brand-link__name">Eve's Lily</span>
+        <img src="./assets/brand/lily-icon-only.png" alt="" aria-hidden="true" class="brand-link__icon" width="28" height="27">
+        <img src="./assets/brand/wordmark-text-only.png" alt="Eve's Lily" class="brand-link__wordmark" width="107" height="17">
       </a>
 
       <nav class="nav-desktop" aria-label="Navigasi utama">
@@ -50,7 +48,10 @@
     <div id="drawer-backdrop" class="mobile-drawer__backdrop"></div>
     <div class="mobile-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
       <div class="mobile-drawer__head">
-        <h2 id="drawer-title" class="mobile-drawer__title">Eve's Lily</h2>
+        <h2 id="drawer-title" class="mobile-drawer__title">
+          <img src="./assets/brand/lily-icon-only.png" alt="" aria-hidden="true" class="brand-link__icon" width="26" height="25">
+          <img src="./assets/brand/wordmark-text-only.png" alt="Eve's Lily" class="brand-link__wordmark" width="101" height="16">
+        </h2>
         <button type="button" id="drawer-close" class="icon-btn" aria-label="Tutup menu navigasi">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M18 6L6 18M6 6l12 12"/>
@@ -64,58 +65,47 @@
         <a href="./schedule.html" class="mobile-drawer__link">Schedule</a>
       </nav>
       <div class="mobile-drawer__foot">
-        <a href="#contact" class="btn btn--gold">Hubungi Booking</a>
-        <a href="./admin.html" class="btn btn--outline-dark">Buka Editor EPK</a>
+        <a href="#contact" class="btn btn--primary">Hubungi Booking</a>
       </div>
     </div>
   </div>
 
   <main id="main-content">
     <section class="hero" aria-label="Pengenalan Eve's Lily">
-      <canvas id="cosmos-sky" class="hero__canvas" aria-hidden="true"></canvas>
+      <canvas id="cosmos-sky-back" class="hero__canvas hero__canvas--back" aria-hidden="true"></canvas>
 
       <div class="container hero__inner">
-        <div class="hero__topbar">
-          <div id="hero-era" class="hero__era">
-            <svg class="hero__era-star" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2L12 2z"/>
-            </svg>
-            <span>Rilisan Mendatang:</span>
-            <span class="hero__era-title">Perayaan Bintang Jatuh</span>
-          </div>
-
-          <button type="button" id="sky-toggle" class="sky-toggle" aria-pressed="false">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <circle cx="12" cy="12" r="9"/>
-              <path d="M10 9v6M14 9v6"/>
-            </svg>
-            <span data-sky-label>Jeda langit bintang</span>
-          </button>
-        </div>
-
-        <div class="hero__frame">
-          <img
-            id="hero-photo"
-            class="hero__photo"
-            src="./assets/brand/hero-band.jpg"
-            alt="Foto formasi studio band Eve's Lily"
-            width="1599"
-            height="1066"
-            fetchpriority="high"
-          >
-          <div class="hero__scrim" aria-hidden="true"></div>
-          <div class="hero__brand-overlay">
-            <h1 style="margin:0">
+        <div class="hero__frame-outer">
+          <span class="hero__corner hero__corner--tl" aria-hidden="true"></span>
+          <span class="hero__corner hero__corner--tr" aria-hidden="true"></span>
+          <span class="hero__corner hero__corner--bl" aria-hidden="true"></span>
+          <span class="hero__corner hero__corner--br" aria-hidden="true"></span>
+          <div class="hero__frame">
+            <div class="hero__frame-inner">
               <img
-                id="hero-logo"
-                class="hero__logo-img"
-                src="./assets/brand/logo-emblem-wordmark.png"
-                alt="Eve's Lily"
-                width="799"
-                height="517"
+                id="hero-photo"
+                class="hero__photo"
+                src="./assets/brand/hero-band.jpg"
+                alt="Foto formasi studio band Eve's Lily"
+                width="1599"
+                height="1066"
                 fetchpriority="high"
               >
-            </h1>
+              <div class="hero__scrim" aria-hidden="true"></div>
+              <div class="hero__brand-overlay">
+                <h1 style="margin:0">
+                  <img
+                    id="hero-logo"
+                    class="hero__logo-img"
+                    src="./assets/brand/logo-emblem-wordmark.png"
+                    alt="Eve's Lily"
+                    width="799"
+                    height="517"
+                    fetchpriority="high"
+                  >
+                </h1>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -127,10 +117,12 @@
         </div>
 
         <div class="hero__actions">
-          <a href="#discography" class="btn btn--gold">Dengarkan Discography</a>
+          <a href="#discography" class="btn btn--primary">Dengarkan Discography</a>
           <a href="#contact" class="btn btn--outline-dark">Kontak Booking &amp; Media</a>
         </div>
       </div>
+
+      <canvas id="cosmos-sky-front" class="hero__canvas hero__canvas--front" aria-hidden="true"></canvas>
     </section>
 
     <section id="profile" class="band band--cosmos reveal" aria-labelledby="profile-section-heading">
@@ -139,7 +131,6 @@
         <div id="profile-content">
           <div class="state-box" role="status">
             <p class="state-box__title">Memuat profil Eve's Lily...</p>
-            <p class="state-box__desc">Mengambil data terbaru dari arsip EPK.</p>
           </div>
         </div>
       </div>
@@ -148,10 +139,7 @@
     <section id="discography" class="band band--paper reveal" data-surface="paper" aria-labelledby="discog-heading">
       <div class="container">
         <div class="section-head">
-          <div>
-            <h2 id="discog-heading" class="section-title">Discography</h2>
-            <p class="section-note">Katalog single, mini album, dan konsep Trilogi Eve's Lily sejak 2021 hingga era terbaru.</p>
-          </div>
+          <h2 id="discog-heading" class="section-title">Discography</h2>
         </div>
 
         <div id="discog-spotlight" class="discog-spotlight">
@@ -175,10 +163,7 @@
     <section id="press-photos" class="band band--cosmos reveal" aria-labelledby="press-heading">
       <div class="container">
         <div class="section-head">
-          <div>
-            <h2 id="press-heading" class="section-title">Press Photos</h2>
-            <p class="section-note">Dokumentasi panggung pilihan. Klik foto untuk pratinjau penuh atau buka arsip lengkap.</p>
-          </div>
+          <h2 id="press-heading" class="section-title">Press Photos</h2>
           <a id="press-all-btn" href="./press-photos.html" class="btn btn--outline-dark">Lihat Semua Foto Panggung</a>
         </div>
 
@@ -193,10 +178,7 @@
     <section id="shows" class="band band--paper reveal" data-surface="paper" aria-labelledby="shows-heading">
       <div class="container">
         <div class="section-head">
-          <div>
-            <h2 id="shows-heading" class="section-title">Guestings and Shows</h2>
-            <p class="section-note">Penampilan festival, showcase, dan panggung pilihan di Kalimantan Selatan hingga Jakarta.</p>
-          </div>
+          <h2 id="shows-heading" class="section-title">Guestings and Shows</h2>
           <a id="shows-all-btn" href="./schedule.html" class="btn btn--outline-light">Lihat Semua Jadwal &amp; Arsip</a>
         </div>
 
@@ -211,10 +193,7 @@
     <section id="video" class="band band--cosmos reveal" aria-labelledby="video-heading">
       <div class="container">
         <div class="section-head">
-          <div>
-            <h2 id="video-heading" class="section-title">Video</h2>
-            <p class="section-note">Rekaman penampilan langsung Eve's Lily di festival dan panggung showcase.</p>
-          </div>
+          <h2 id="video-heading" class="section-title">Video</h2>
         </div>
 
         <div id="videos-grid">
@@ -235,15 +214,8 @@
   </main>
 
   <footer class="site-footer">
-    <div class="container site-footer__inner">
+    <div class="container site-footer__inner site-footer__inner--center">
       <p style="margin:0">&copy; Eve's Lily, Banjarmasin. Electronic Press Kit.</p>
-      <nav class="site-footer__nav" aria-label="Tautan footer">
-        <a href="./index.html" class="site-footer__link">Home</a>
-        <a href="./press-photos.html" class="site-footer__link">Press Photos</a>
-        <a href="./biography.html" class="site-footer__link">Biography</a>
-        <a href="./schedule.html" class="site-footer__link">Schedule</a>
-        <a href="./admin.html" class="site-footer__link">Kelola EPK</a>
-      </nav>
     </div>
   </footer>
 

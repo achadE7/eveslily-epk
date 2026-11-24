@@ -61,7 +61,9 @@ async function boot() {
       </div>
     `;
 
+    // Item 8: Official lily icon WITHOUT text and WITHOUT caption underneath
     const philParagraphs = Array.isArray(bio.philosophyParagraphs) ? bio.philosophyParagraphs : [];
+    const lilyIconSrc = hero.lilyIconOnly || 'assets/brand/lily-icon-only.png';
     philosophyRoot.innerHTML = `
       <div class="philosophy-grid">
         <div>
@@ -70,33 +72,28 @@ async function boot() {
             ${philParagraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join('')}
           </div>
         </div>
-        <figure class="philosophy-emblem" style="margin:0">
+        <div class="philosophy-emblem">
           <img
-            src="${escapeHtml(safeUrl(hero.lilyEmblem || 'assets/brand/lily-emblem-white.png'))}"
-            alt="Emblem bunga lily melingkar Eve's Lily"
-            width="${Number(hero.lilyEmblemWidth) || 1599}"
-            height="${Number(hero.lilyEmblemHeight) || 1035}"
+            src="${escapeHtml(safeUrl(lilyIconSrc))}"
+            alt="Logo bunga lily melingkar Eve's Lily"
+            width="${Number(hero.lilyIconWidth) || 474}"
+            height="${Number(hero.lilyIconHeight) || 454}"
             loading="lazy"
           />
-          <figcaption class="philosophy-emblem__caption">Simbol kehidupan dan harapan baru</figcaption>
-        </figure>
+        </div>
       </div>
     `;
 
+    // Items 9 & 10: No "01 / LINEUP" index label + per-member precise photoPosition crop
     const members = Array.isArray(data.members) ? data.members : [];
     if (!members.length) {
-      membersRoot.innerHTML = `
-        <div class="state-box">
-          <p class="state-box__title">Belum ada data personel</p>
-          <p class="state-box__desc">Tambahkan daftar personel melalui Editor EPK.</p>
-        </div>
-      `;
+      membersRoot.innerHTML = `<div class="state-box"><p class="state-box__title">Belum ada data personel</p></div>`;
     } else {
       membersRoot.innerHTML = `
         <div class="members-list">
           ${members
             .map(
-              (m, idx) => `
+              (m) => `
               <article class="member-row">
                 <div class="member-row__media">
                   <img
@@ -105,11 +102,11 @@ async function boot() {
                     alt="${escapeHtml(`${m.name}, ${m.role} Eve's Lily`)}"
                     width="${Number(m.width) || 800}"
                     height="${Number(m.height) || 533}"
+                    style="object-position:${escapeHtml(m.photoPosition || '50% 24%')}"
                     loading="lazy"
                   />
                 </div>
                 <div>
-                  <p class="member-row__index">0${idx + 1} / LINEUP</p>
                   <h3 class="member-row__name">${escapeHtml(m.name)}</h3>
                   <p class="member-row__role">${escapeHtml(m.role)}</p>
                   ${m.note ? `<p class="member-row__note">${escapeHtml(m.note)}</p>` : ''}

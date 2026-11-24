@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Biography &amp; Members | Eve's Lily EPK</title>
   <meta name="description" content="Biografi lengkap, filosofi nama bunga lily, serta formasi personel Eve's Lily asal Banjarmasin, Kalimantan Selatan.">
-  <link rel="icon" type="image/png" href="./assets/brand/lily-emblem-white.png">
+  <link rel="icon" type="image/png" href="./assets/brand/lily-icon-only.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Italiana&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,10 +18,8 @@
   <header class="site-header">
     <div class="container site-header__inner">
       <a href="./index.html" class="brand-link" aria-label="Beranda Eve's Lily EPK">
-        <svg class="brand-link__emblem" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2L12 2z"/>
-        </svg>
-        <span class="brand-link__name">Eve's Lily</span>
+        <img src="./assets/brand/lily-icon-only.png" alt="" aria-hidden="true" class="brand-link__icon" width="28" height="27">
+        <img src="./assets/brand/wordmark-text-only.png" alt="Eve's Lily" class="brand-link__wordmark" width="107" height="17">
       </a>
 
       <nav class="nav-desktop" aria-label="Navigasi utama">
@@ -44,7 +42,10 @@
     <div id="drawer-backdrop" class="mobile-drawer__backdrop"></div>
     <div class="mobile-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
       <div class="mobile-drawer__head">
-        <h2 id="drawer-title" class="mobile-drawer__title">Eve's Lily</h2>
+        <h2 id="drawer-title" class="mobile-drawer__title">
+          <img src="./assets/brand/lily-icon-only.png" alt="" aria-hidden="true" class="brand-link__icon" width="26" height="25">
+          <img src="./assets/brand/wordmark-text-only.png" alt="Eve's Lily" class="brand-link__wordmark" width="101" height="16">
+        </h2>
         <button type="button" id="drawer-close" class="icon-btn" aria-label="Tutup menu navigasi">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M18 6L6 18M6 6l12 12"/>
@@ -58,8 +59,7 @@
         <a href="./schedule.html" class="mobile-drawer__link">Schedule</a>
       </nav>
       <div class="mobile-drawer__foot">
-        <a href="#contact" class="btn btn--gold">Hubungi Booking</a>
-        <a href="./admin.html" class="btn btn--outline-dark">Buka Editor EPK</a>
+        <a href="#contact" class="btn btn--primary">Hubungi Booking</a>
       </div>
     </div>
   </div>
@@ -67,9 +67,7 @@
   <main id="main-content">
     <section class="page-hero">
       <div class="container">
-        <p class="page-hero__kicker">Kisah, Filosofi &amp; Personel</p>
         <h1 class="page-hero__title">Biography</h1>
-        <p class="page-hero__sub">Perjalanan musik Eve's Lily dari panggung Jejepangan Banjarmasin menuju karya pop-alternatif bernuansa J-Pop.</p>
       </div>
     </section>
 
@@ -96,10 +94,7 @@
         </div>
 
         <div class="section-head">
-          <div>
-            <h2 class="section-title">Members</h2>
-            <p class="section-note">Formasi panggung dan rekaman Eve's Lily saat ini.</p>
-          </div>
+          <h2 class="section-title">Members</h2>
           <a href="./index.html" class="btn btn--outline-dark btn--sm">Kembali ke Home</a>
         </div>
 
@@ -117,15 +112,8 @@
   </main>
 
   <footer class="site-footer">
-    <div class="container site-footer__inner">
+    <div class="container site-footer__inner site-footer__inner--center">
       <p style="margin:0">&copy; Eve's Lily, Banjarmasin. Electronic Press Kit.</p>
-      <nav class="site-footer__nav" aria-label="Tautan footer">
-        <a href="./index.html" class="site-footer__link">Home</a>
-        <a href="./press-photos.html" class="site-footer__link">Press Photos</a>
-        <a href="./biography.html" class="site-footer__link">Biography</a>
-        <a href="./schedule.html" class="site-footer__link">Schedule</a>
-        <a href="./admin.html" class="site-footer__link">Kelola EPK</a>
-      </nav>
     </div>
   </footer>
 

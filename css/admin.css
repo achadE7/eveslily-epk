@@ -12,7 +12,7 @@
   position: sticky;
   top: 0;
   z-index: 800;
-  background: rgba(6, 8, 19, 0.94);
+  background: rgba(4, 10, 30, 0.94);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--rule-dark);
   padding-block: 0.75rem;
@@ -38,7 +38,7 @@
 .admin-topbar__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.45rem;
+  font-size: 1.4rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   line-height: 1.1;
@@ -62,8 +62,8 @@
 }
 
 .admin-status[data-state='dirty'] {
-  color: var(--accent-gold);
-  border-color: var(--accent-gold);
+  color: var(--accent-comet);
+  border-color: var(--accent-comet);
 }
 
 .admin-status[data-state='error'] {
@@ -89,7 +89,6 @@
   flex: 1;
 }
 
-/* Designed Section Navigation Sidebar */
 .admin-nav-mobile-trigger {
   display: none;
   width: 100%;
@@ -143,13 +142,13 @@
 }
 
 .admin-nav-btn:hover {
-  background: rgba(244, 245, 248, 0.06);
+  background: rgba(111, 216, 255, 0.08);
 }
 
 .admin-nav-btn[aria-current='true'] {
-  background: rgba(242, 201, 125, 0.12);
-  border-color: var(--accent-gold);
-  color: var(--accent-gold);
+  background: rgba(111, 216, 255, 0.12);
+  border-color: var(--accent-comet);
+  color: var(--accent-comet);
   font-weight: 700;
 }
 
@@ -160,10 +159,9 @@
 }
 
 .admin-nav-btn[aria-current='true'] .admin-nav-btn__count {
-  color: var(--accent-gold);
+  color: var(--accent-comet);
 }
 
-/* Main Editor Canvas */
 .admin-main {
   min-width: 0;
   display: flex;
@@ -206,7 +204,6 @@
   max-width: 64ch;
 }
 
-/* Form Elements */
 .field-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -276,10 +273,9 @@
 .field__checkbox-row input[type='checkbox'] {
   width: 20px;
   height: 20px;
-  accent-color: var(--accent-gold);
+  accent-color: var(--accent-comet);
 }
 
-/* Repeatable Item Cards */
 .item-stack {
   display: flex;
   flex-direction: column;
@@ -287,7 +283,7 @@
 }
 
 .item-card {
-  background: rgba(6, 8, 19, 0.65);
+  background: rgba(4, 10, 30, 0.72);
   border: 1px solid var(--rule-dark);
   border-radius: var(--radius-frame);
   padding: 1.15rem;
@@ -310,7 +306,7 @@
   margin: 0;
   font-size: var(--text-base);
   font-weight: 700;
-  color: var(--accent-gold);
+  color: var(--accent-comet);
 }
 
 .item-card__controls {
@@ -326,10 +322,9 @@
 }
 
 .btn--danger:hover {
-  background: rgba(255, 138, 138, 0.14);
+  background: rgba(255, 148, 168, 0.14);
 }
 
-/* Image Uploader Field */
 .image-field {
   display: grid;
   grid-template-columns: 96px minmax(0, 1fr);
@@ -375,8 +370,8 @@
 }
 
 .file-trigger:hover {
-  border-color: var(--accent-gold);
-  color: var(--accent-gold);
+  border-color: var(--accent-comet);
+  color: var(--accent-comet);
 }
 
 .file-trigger input[type='file'] {
@@ -387,7 +382,6 @@
   pointer-events: none;
 }
 
-/* Feedback Banner inside Panel */
 .feedback-box {
   padding: 0.9rem 1rem;
   border-radius: var(--radius-frame);
@@ -414,8 +408,8 @@
 }
 
 .feedback-box[data-kind='info'] {
-  border-color: var(--accent-gold);
-  color: var(--accent-gold);
+  border-color: var(--accent-comet);
+  color: var(--accent-comet);
 }
 
 .guide-steps {

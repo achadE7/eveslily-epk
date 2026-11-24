@@ -14,7 +14,7 @@ let hasUnsavedChanges = false;
 let ghConfig = loadGhConfig();
 
 const SECTION_LABELS = {
-  hero: 'Hero & Tema Era',
+  hero: 'Hero & Identitas',
   biography: 'Biografi & Filosofi',
   members: 'Personel',
   discography: 'Discography',
@@ -85,9 +85,6 @@ function slugify(str) {
     .replace(/^-+|-+$/g, '') || `item-${Date.now()}`;
 }
 
-/* ==========================================================================
-   UTF-8 Safe Base64 + GitHub Contents API Helpers
-   ========================================================================== */
 function utf8ToBase64(str) {
   const bytes = new TextEncoder().encode(str);
   let binary = '';
@@ -145,11 +142,7 @@ async function commitFileToGitHub(filePath, base64Content, message) {
   const branch = ghConfig.branch.trim() || 'main';
   const sha = await getRemoteFileSha(filePath);
 
-  const payload = {
-    message,
-    content: base64Content,
-    branch
-  };
+  const payload = { message, content: base64Content, branch };
   if (sha) payload.sha = sha;
 
   return githubFetch(`/repos/${owner}/${repo}/contents/${filePath}`, {
@@ -179,60 +172,136 @@ async function publishJsonToGitHub(commitMsg) {
   return result;
 }
 
-function readImageFile(file) {
+function formatBytes(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+}
+
+function estimateBase64Bytes(base64) {
+  return Math.floor((base64.length * 3) / 4);
+}
+
+function canvasHasTransparency(ctx, width, height) {
+  try {
+    const sampleStep = Math.max(1, Math.floor(Math.min(width, height) / 64));
+    const data = ctx.getImageData(0, 0, width, height).data;
+    for (let y = 0; y < height; y += sampleStep) {
+      for (let x = 0; x < width; x += sampleStep) {
+        if (data[(y * width + x) * 4 + 3] < 250) return true;
+      }
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+function compressImageFile(file, { maxDimension = 1600, maxBytes = 320 * 1024 } = {}) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
-      const dataUrl = String(reader.result || '');
+      const originalDataUrl = String(reader.result || '');
       const img = new Image();
       img.onload = () => {
-        const base64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : '';
+        const srcW = img.naturalWidth || 800;
+        const srcH = img.naturalHeight || 600;
+        const scale = Math.min(1, maxDimension / Math.max(srcW, srcH));
+        const targetW = Math.max(1, Math.round(srcW * scale));
+        const targetH = Math.max(1, Math.round(srcH * scale));
+
+        const canvas = document.createElement('canvas');
+        canvas.width = targetW;
+        canvas.height = targetH;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Browser tidak mendukung kompresi gambar canvas.'));
+          return;
+        }
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, targetW, targetH);
+
+        const isPng = file.type === 'image/png';
+        const keepTransparentPng = isPng && canvasHasTransparency(ctx, targetW, targetH);
+
+        let outDataUrl = '';
+        let outExt = 'jpg';
+
+        if (keepTransparentPng) {
+          outDataUrl = canvas.toDataURL('image/png');
+          outExt = 'png';
+        } else {
+          // Fill white/dark matte behind opaque PNGs before JPEG export
+          if (isPng) {
+            ctx.globalCompositeOperation = 'destination-over';
+            ctx.fillStyle = '#040a1e';
+            ctx.fillRect(0, 0, targetW, targetH);
+            ctx.globalCompositeOperation = 'source-over';
+          }
+          const qualities = [0.84, 0.76, 0.68, 0.6];
+          for (const q of qualities) {
+            outDataUrl = canvas.toDataURL('image/jpeg', q);
+            const b64 = outDataUrl.split(',')[1] || '';
+            if (estimateBase64Bytes(b64) <= maxBytes) break;
+          }
+          outExt = 'jpg';
+        }
+
+        const base64 = outDataUrl.includes(',') ? outDataUrl.split(',')[1] : '';
+        const compressedBytes = estimateBase64Bytes(base64);
+
         resolve({
-          dataUrl,
+          dataUrl: outDataUrl,
           base64,
-          width: img.naturalWidth || 800,
-          height: img.naturalHeight || 600
+          ext: outExt,
+          width: targetW,
+          height: targetH,
+          originalBytes: file.size,
+          compressedBytes
         });
       };
       img.onerror = () => reject(new Error('File bukan gambar yang valid.'));
-      img.src = dataUrl;
+      img.src = originalDataUrl;
     };
     reader.onerror = () => reject(new Error('Gagal membaca file gambar.'));
     reader.readAsDataURL(file);
   });
 }
 
-async function handleImageSelection(file, onUpdate) {
+async function handleImageSelection(file, fieldId, onUpdate) {
   if (!file) return;
   try {
-    const { dataUrl, base64, width, height } = await readImageFile(file);
-    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+    const isCover = String(fieldId || '').startsWith('rel-cover-');
+    const result = await compressImageFile(file, {
+      maxDimension: isCover ? 1000 : 1600,
+      maxBytes: isCover ? 220 * 1024 : 340 * 1024
+    });
+
     const baseName = slugify(file.name.replace(/\.[^.]+$/, ''));
-    const repoPath = `assets/uploads/${Date.now()}-${baseName}.${ext}`;
+    const repoPath = `assets/uploads/${Date.now()}-${baseName}.${result.ext}`;
+    const sizeNote = `${formatBytes(result.originalBytes)} -> ${formatBytes(result.compressedBytes)} (${result.width}x${result.height})`;
 
     if (isGhConfigured()) {
-      showToast(`Mengunggah ${file.name} ke GitHub...`);
-      await commitFileToGitHub(repoPath, base64, `Upload asset ${file.name}`);
-      onUpdate({ path: repoPath, width, height });
-      showToast(`Gambar berhasil diunggah ke ${repoPath}.`);
+      showToast(`Dikompres (${sizeNote}), mengunggah ke GitHub...`);
+      await commitFileToGitHub(repoPath, result.base64, `Upload compressed asset ${baseName}.${result.ext}`);
+      onUpdate({ path: repoPath, width: result.width, height: result.height });
+      showToast(`Foto terkompres (${sizeNote}) & tersimpan di ${repoPath}.`);
     } else {
-      if (file.size > 900 * 1024) {
-        showToast('Gambar terlalu besar untuk preview draft lokal (>900KB). Hubungkan GitHub Sync atau kecilkan gambarnya.');
+      if (result.compressedBytes > 900 * 1024) {
+        showToast(`Ukuran masih ${formatBytes(result.compressedBytes)} (>900KB untuk draft lokal). Hubungkan GitHub Sync untuk unggah langsung.`);
         return;
       }
-      onUpdate({ path: dataUrl, width, height });
-      showToast('Gambar dimasukkan ke preview draft lokal. Hubungkan GitHub Sync untuk upload langsung ke repo.');
+      onUpdate({ path: result.dataUrl, width: result.width, height: result.height });
+      showToast(`Foto dikompres otomatis (${sizeNote}) untuk preview lokal.`);
     }
   } catch (err) {
     showToast(`Gagal memproses gambar: ${err.message}`);
   }
 }
 
-/* ==========================================================================
-   Reusable Image Field Builder
-   ========================================================================== */
 function renderImageControl({ id, label, value, hint }) {
-  const previewSrc = safeUrl(value) === '#' ? './assets/brand/lily-emblem-white.png' : safeUrl(value);
+  const previewSrc = safeUrl(value) === '#' ? './assets/brand/lily-icon-only.png' : safeUrl(value);
   return `
     <div class="field field--full">
       <label class="field__label" for="${escapeHtml(id)}">${escapeHtml(label)}</label>
@@ -258,7 +327,7 @@ function renderImageControl({ id, label, value, hint }) {
               <span>Pilih File Gambar</span>
               <input type="file" accept="image/jpeg,image/png,image/webp" data-file-for="${escapeHtml(id)}">
             </label>
-            <span class="field__hint">${escapeHtml(hint || (isGhConfigured() ? 'File yang dipilih langsung diunggah ke assets/uploads/ di GitHub.' : 'Bisa pakai file lokal untuk preview atau hubungkan GitHub untuk upload ke repo.'))}</span>
+            <span class="field__hint">${escapeHtml(hint || (isGhConfigured() ? 'Foto otomatis dikompres lalu langsung diunggah ke assets/uploads/ di GitHub.' : 'Foto otomatis dikompres agar ringan (preview lokal atau upload ke GitHub jika terhubung).'))}</span>
           </div>
         </div>
       </div>
@@ -273,14 +342,14 @@ function bindImageControl(root, id, onValueChange) {
 
   textInput?.addEventListener('input', () => {
     const val = textInput.value.trim();
-    if (preview) preview.src = safeUrl(val) === '#' ? './assets/brand/lily-emblem-white.png' : safeUrl(val);
+    if (preview) preview.src = safeUrl(val) === '#' ? './assets/brand/lily-icon-only.png' : safeUrl(val);
     onValueChange({ path: val });
   });
 
   fileInput?.addEventListener('change', async () => {
     const file = fileInput.files?.[0];
     if (!file) return;
-    await handleImageSelection(file, ({ path, width, height }) => {
+    await handleImageSelection(file, id, ({ path, width, height }) => {
       if (textInput) textInput.value = path;
       if (preview) preview.src = path;
       onValueChange({ path, width, height });
@@ -289,19 +358,25 @@ function bindImageControl(root, id, onValueChange) {
   });
 }
 
+function moveItem(arr, index, delta) {
+  const target = index + delta;
+  if (target < 0 || target >= arr.length) return;
+  const [item] = arr.splice(index, 1);
+  arr.splice(target, 0, item);
+}
+
 /* ==========================================================================
    Section Renderers
    ========================================================================== */
 function renderHeroSection(workspace) {
   const { meta, hero } = epkData;
-  const era = meta.era || { enabled: false, label: '', title: '', subtitle: '' };
 
   workspace.innerHTML = `
     <section class="admin-panel" aria-labelledby="panel-hero-title">
       <div class="admin-panel__head">
         <div>
-          <h2 id="panel-hero-title" class="admin-panel__title">Hero &amp; Tema Era</h2>
-          <p class="admin-panel__desc">Atur identitas utama band, tema rilisan mendatang (seperti "Perayaan Bintang Jatuh"), foto utama, dan kutipan lirik pembuka.</p>
+          <h2 id="panel-hero-title" class="admin-panel__title">Hero &amp; Identitas</h2>
+          <p class="admin-panel__desc">Atur informasi dasar band, foto utama Hero, dan kutipan lirik pembuka. Untuk menambahkan single mendatang (seperti "Perayaan Bintang Jatuh"), kelola langsung di bagian Discography.</p>
         </div>
       </div>
 
@@ -321,21 +396,6 @@ function renderHeroSection(workspace) {
         <div class="field">
           <label class="field__label" for="meta-formed">Tahun Terbentuk</label>
           <input id="meta-formed" class="field__input" type="text" value="${escapeHtml(meta.formedYear || '')}" placeholder="2018">
-        </div>
-
-        <div class="field field--full">
-          <label class="field__checkbox-row" for="era-enabled">
-            <input id="era-enabled" type="checkbox" ${era.enabled ? 'checked' : ''}>
-            <span>Tampilkan penanda tema rilisan mendatang di bagian atas Hero</span>
-          </label>
-        </div>
-        <div class="field">
-          <label class="field__label" for="era-label">Label Era</label>
-          <input id="era-label" class="field__input" type="text" value="${escapeHtml(era.label || '')}" placeholder="Rilisan Mendatang">
-        </div>
-        <div class="field">
-          <label class="field__label" for="era-title">Judul Era / Single Mendatang</label>
-          <input id="era-title" class="field__input" type="text" value="${escapeHtml(era.title || '')}" placeholder="Perayaan Bintang Jatuh">
         </div>
 
         <div class="field field--full">
@@ -363,16 +423,8 @@ function renderHeroSection(workspace) {
   bindText('#meta-origin', (v) => { epkData.meta.origin = v; });
   bindText('#meta-genre', (v) => { epkData.meta.genre = v; });
   bindText('#meta-formed', (v) => { epkData.meta.formedYear = v; });
-  bindText('#era-label', (v) => { epkData.meta.era.label = v; });
-  bindText('#era-title', (v) => { epkData.meta.era.title = v; });
   bindText('#hero-quote', (v) => { epkData.hero.lyricQuote = v; });
   bindText('#hero-quote-source', (v) => { epkData.hero.lyricSource = v; });
-
-  workspace.querySelector('#era-enabled')?.addEventListener('change', (e) => {
-    epkData.meta.era = epkData.meta.era || {};
-    epkData.meta.era.enabled = e.target.checked;
-    persistDraft();
-  });
 
   bindImageControl(workspace, 'hero-image', ({ path, width, height }) => {
     epkData.hero.image = path;
@@ -393,7 +445,7 @@ function renderBiographySection(workspace) {
       <div class="admin-panel__head">
         <div>
           <h2 id="panel-bio-title" class="admin-panel__title">Biografi &amp; Filosofi</h2>
-          <p class="admin-panel__desc">Satu perubahan di sini langsung tersinkron ke halaman Home dan halaman Biography. Pisahkan antar paragraf dengan satu baris kosong.</p>
+          <p class="admin-panel__desc">Satu perubahan di sini langsung tersinkron ke halaman Home dan Biography. Pisahkan antar paragraf dengan satu baris kosong.</p>
         </div>
       </div>
 
@@ -407,7 +459,7 @@ function renderBiographySection(workspace) {
 
         <div class="field field--full">
           <label class="field__label" for="bio-paragraphs">Paragraf Biografi</label>
-          <textarea id="bio-paragraphs" class="field__textarea" style="min-height:220px" placeholder="Tulis biografi band, pisahkan paragraf dengan satu baris kosong...">${escapeHtml(paragraphsText)}</textarea>
+          <textarea id="bio-paragraphs" class="field__textarea" style="min-height:220px" placeholder="Tulis biografi band...">${escapeHtml(paragraphsText)}</textarea>
           <p class="field__hint">Jumlah paragraf saat ini: ${(bio.paragraphs || []).length}</p>
         </div>
 
@@ -424,10 +476,10 @@ function renderBiographySection(workspace) {
 
       <div>
         <div class="item-card__head" style="margin-bottom:0.85rem">
-          <h3 class="item-card__title">Ringkasan Fakta Band (Asal, Genre, Karya, Soundtrack)</h3>
+          <h3 class="item-card__title">Ringkasan Fakta Band</h3>
           <button type="button" id="add-highlight-btn" class="btn btn--outline-dark btn--sm">+ Tambah Fakta</button>
         </div>
-        <div class="item-stack" id="highlights-list">
+        <div class="item-stack">
           ${highlights
             .map(
               (h, idx) => `
@@ -459,10 +511,7 @@ function renderBiographySection(workspace) {
   });
 
   workspace.querySelector('#bio-paragraphs')?.addEventListener('input', (e) => {
-    epkData.biography.paragraphs = e.target.value
-      .split(/\n\s*\n/)
-      .map((s) => s.trim())
-      .filter(Boolean);
+    epkData.biography.paragraphs = e.target.value.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
     persistDraft();
   });
 
@@ -472,10 +521,7 @@ function renderBiographySection(workspace) {
   });
 
   workspace.querySelector('#phil-paragraphs')?.addEventListener('input', (e) => {
-    epkData.biography.philosophyParagraphs = e.target.value
-      .split(/\n\s*\n/)
-      .map((s) => s.trim())
-      .filter(Boolean);
+    epkData.biography.philosophyParagraphs = e.target.value.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
     persistDraft();
   });
 
@@ -511,13 +557,6 @@ function renderBiographySection(workspace) {
   });
 }
 
-function moveItem(arr, index, delta) {
-  const target = index + delta;
-  if (target < 0 || target >= arr.length) return;
-  const [item] = arr.splice(index, 1);
-  arr.splice(target, 0, item);
-}
-
 function renderMembersSection(workspace) {
   const members = epkData.members || [];
   workspace.innerHTML = `
@@ -525,9 +564,9 @@ function renderMembersSection(workspace) {
       <div class="admin-panel__head">
         <div>
           <h2 id="panel-members-title" class="admin-panel__title">Personel (${members.length})</h2>
-          <p class="admin-panel__desc">Kelola formasi personel yang tampil di halaman Biography.</p>
+          <p class="admin-panel__desc">Kelola formasi personel dan posisi crop fokus foto (misalnya <code>50% 56%</code> untuk foto vertikal agar wajah dan instrumen pas di bingkai).</p>
         </div>
-        <button type="button" id="add-member-btn" class="btn btn--gold btn--sm">+ Tambah Personel</button>
+        <button type="button" id="add-member-btn" class="btn btn--primary btn--sm">+ Tambah Personel</button>
       </div>
 
       <div class="item-stack">
@@ -550,11 +589,15 @@ function renderMembersSection(workspace) {
                 </div>
                 <div class="field">
                   <label class="field__label" for="mem-role-${idx}">Posisi / Instrumen</label>
-                  <input id="mem-role-${idx}" class="field__input" data-field="role" value="${escapeHtml(m.role || '')}" placeholder="Contoh: Vocal, Guitar, Drum">
+                  <input id="mem-role-${idx}" class="field__input" data-field="role" value="${escapeHtml(m.role || '')}" placeholder="Contoh: Vocal, Guitar, Bass, Drum">
                 </div>
-                <div class="field field--full">
+                <div class="field">
                   <label class="field__label" for="mem-note-${idx}">Catatan Singkat (Opsional)</label>
                   <input id="mem-note-${idx}" class="field__input" data-field="note" value="${escapeHtml(m.note || '')}" placeholder="Contoh: Bergabung sejak 2025">
+                </div>
+                <div class="field">
+                  <label class="field__label" for="mem-pos-${idx}">Posisi Crop Foto (CSS object-position)</label>
+                  <input id="mem-pos-${idx}" class="field__input" data-field="photoPosition" value="${escapeHtml(m.photoPosition || '50% 24%')}" placeholder="50% 24% (atas) / 50% 56% (tengah)">
                 </div>
                 ${renderImageControl({ id: `mem-photo-${idx}`, label: 'Foto Personel', value: m.photo })}
               </div>
@@ -571,6 +614,7 @@ function renderMembersSection(workspace) {
       name: '',
       role: '',
       photo: 'assets/brand/bio-band.jpg',
+      photoPosition: '50% 24%',
       width: 800,
       height: 533,
       note: ''
@@ -627,9 +671,9 @@ function renderDiscographySection(workspace) {
       <div class="admin-panel__head">
         <div>
           <h2 id="panel-discog-title" class="admin-panel__title">Discography (${items.length})</h2>
-          <p class="admin-panel__desc">Tambah single baru (misalnya "Perayaan Bintang Jatuh"), atur rilisan unggulan, tracklist EP, tautan Spotify per lagu, atau pratinjau MP3.</p>
+          <p class="admin-panel__desc">Kelola rilis mendatang (termasuk opsi cover blur), single, EP, tracklist, serta tautan Spotify, Apple Music, dan YouTube Music per lagu.</p>
         </div>
-        <button type="button" id="add-release-btn" class="btn btn--gold btn--sm">+ Tambah Rilis di Atas</button>
+        <button type="button" id="add-release-btn" class="btn btn--primary btn--sm">+ Tambah Rilis di Atas</button>
       </div>
 
       <div class="item-stack">
@@ -638,9 +682,9 @@ function renderDiscographySection(workspace) {
             (r, idx) => `
             <div class="item-card" data-rel-idx="${idx}">
               <div class="item-card__head">
-                <h3 class="item-card__title">${escapeHtml(r.title || 'Rilis Baru')} (${escapeHtml(r.year || 'Tahun')})${r.featured ? ' [Sorotan Terbaru]' : ''}</h3>
+                <h3 class="item-card__title">${escapeHtml(r.title || 'Rilis Baru')} (${escapeHtml(r.year || 'Tahun')})${r.upcoming ? ' [Rilisan Mendatang]' : ''}${r.featured ? ' [Sorotan Terbaru]' : ''}</h3>
                 <div class="item-card__controls">
-                  <button type="button" class="btn btn--outline-dark btn--sm" data-set-featured="${idx}" ${r.featured ? 'disabled' : ''}>Jadikan Terbaru</button>
+                  <button type="button" class="btn btn--outline-dark btn--sm" data-set-featured="${idx}" ${r.featured || r.upcoming ? 'disabled' : ''}>Jadikan Terbaru</button>
                   <button type="button" class="btn btn--outline-dark btn--sm" data-move-up="${idx}" ${idx === 0 ? 'disabled' : ''}>Naik</button>
                   <button type="button" class="btn btn--outline-dark btn--sm" data-move-down="${idx}" ${idx === items.length - 1 ? 'disabled' : ''}>Turun</button>
                   <button type="button" class="btn btn--danger btn--sm" data-delete-idx="${idx}">Hapus</button>
@@ -661,8 +705,8 @@ function renderDiscographySection(workspace) {
                   </select>
                 </div>
                 <div class="field">
-                  <label class="field__label" for="rel-year-${idx}">Tahun</label>
-                  <input id="rel-year-${idx}" class="field__input" data-field="year" value="${escapeHtml(r.year || '')}" placeholder="2026">
+                  <label class="field__label" for="rel-year-${idx}">Tahun / Status Waktu</label>
+                  <input id="rel-year-${idx}" class="field__input" data-field="year" value="${escapeHtml(r.year || '')}" placeholder="2026 atau Segera Hadir">
                 </div>
                 <div class="field">
                   <label class="field__label" for="rel-cat-${idx}">Kategori Filter</label>
@@ -674,15 +718,37 @@ function renderDiscographySection(workspace) {
                 </div>
                 <div class="field">
                   <label class="field__label" for="rel-sub-${idx}">Keterangan Tambahan</label>
-                  <input id="rel-sub-${idx}" class="field__input" data-field="subtitle" value="${escapeHtml(r.subtitle || '')}" placeholder="Contoh: Trilogy Opener, OST Game">
+                  <input id="rel-sub-${idx}" class="field__input" data-field="subtitle" value="${escapeHtml(r.subtitle || '')}" placeholder="Contoh: Rilisan Mendatang / OST Game">
+                </div>
+
+                <div class="field">
+                  <label class="field__checkbox-row" for="rel-upcoming-${idx}">
+                    <input id="rel-upcoming-${idx}" type="checkbox" data-bool="upcoming" ${r.upcoming ? 'checked' : ''}>
+                    <span>Tandai sebagai Rilisan Mendatang</span>
+                  </label>
                 </div>
                 <div class="field">
-                  <label class="field__label" for="rel-spotify-${idx}">URL Spotify Track/Album (Opsional)</label>
+                  <label class="field__checkbox-row" for="rel-blur-${idx}">
+                    <input id="rel-blur-${idx}" type="checkbox" data-bool="blurredCover" ${r.blurredCover ? 'checked' : ''}>
+                    <span>Tambahkan efek blur CSS pada cover</span>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label class="field__label" for="rel-spotify-${idx}">URL Spotify (Opsional, kosong = profil artis)</label>
                   <input id="rel-spotify-${idx}" class="field__input" data-field="spotifyUrl" value="${escapeHtml(r.spotifyUrl || '')}" placeholder="https://open.spotify.com/track/...">
                 </div>
                 <div class="field">
-                  <label class="field__label" for="rel-audio-${idx}">URL File Audio Preview MP3/M4A (Opsional)</label>
-                  <input id="rel-audio-${idx}" class="field__input" data-field="audioPreviewUrl" value="${escapeHtml(r.audioPreviewUrl || '')}" placeholder="assets/audio/preview.mp3 atau URL MP3">
+                  <label class="field__label" for="rel-apple-${idx}">URL Apple Music (Opsional)</label>
+                  <input id="rel-apple-${idx}" class="field__input" data-field="appleMusicUrl" value="${escapeHtml(r.appleMusicUrl || '')}" placeholder="https://music.apple.com/...">
+                </div>
+                <div class="field">
+                  <label class="field__label" for="rel-ytm-${idx}">URL YouTube Music (Opsional)</label>
+                  <input id="rel-ytm-${idx}" class="field__input" data-field="youtubeMusicUrl" value="${escapeHtml(r.youtubeMusicUrl || '')}" placeholder="https://music.youtube.com/...">
+                </div>
+                <div class="field">
+                  <label class="field__label" for="rel-audio-${idx}">URL Audio Preview MP3/M4A (Opsional)</label>
+                  <input id="rel-audio-${idx}" class="field__input" data-field="audioPreviewUrl" value="${escapeHtml(r.audioPreviewUrl || '')}" placeholder="assets/audio/preview.mp3">
                 </div>
                 <div class="field field--full">
                   <label class="field__label" for="rel-tracks-${idx}">Tracklist (Khusus EP/Album, 1 baris per lagu)</label>
@@ -705,13 +771,17 @@ function renderDiscographySection(workspace) {
       year: String(new Date().getFullYear()),
       releaseDate: '',
       subtitle: '',
+      upcoming: false,
+      blurredCover: false,
       featured: false,
       category: 'Single',
-      cover: 'assets/covers/10-langit-pun-bernyanyi.jpg',
+      cover: 'assets/covers/11-perayaan-bintang-jatuh-blur.jpg',
       coverWidth: 480,
       coverHeight: 480,
       tracklist: [],
       spotifyUrl: '',
+      appleMusicUrl: '',
+      youtubeMusicUrl: '',
       audioPreviewUrl: ''
     });
     persistDraft();
@@ -727,11 +797,15 @@ function renderDiscographySection(workspace) {
         persistDraft();
       });
     });
+    card.querySelectorAll('[data-bool]').forEach((chk) => {
+      chk.addEventListener('change', () => {
+        epkData.discography[idx][chk.dataset.bool] = chk.checked;
+        persistDraft();
+        renderWorkspace();
+      });
+    });
     card.querySelector('[data-tracklist]')?.addEventListener('input', (e) => {
-      epkData.discography[idx].tracklist = e.target.value
-        .split('\n')
-        .map((line) => line.trim())
-        .filter(Boolean);
+      epkData.discography[idx].tracklist = e.target.value.split('\n').map((line) => line.trim()).filter(Boolean);
       persistDraft();
     });
     bindImageControl(card, `rel-cover-${idx}`, ({ path, width, height }) => {
@@ -787,7 +861,7 @@ function renderPressSection(workspace) {
           <h2 id="panel-press-title" class="admin-panel__title">Press Photos (${photos.length})</h2>
           <p class="admin-panel__desc">Tambahkan foto panggung baru dan centang "Tampilkan di Sorotan Home" pada 3 foto terbaik untuk halaman depan.</p>
         </div>
-        <button type="button" id="add-press-btn" class="btn btn--gold btn--sm">+ Tambah Foto Panggung</button>
+        <button type="button" id="add-press-btn" class="btn btn--primary btn--sm">+ Tambah Foto Panggung</button>
       </div>
 
       <div class="item-stack">
@@ -913,7 +987,7 @@ function renderShowsSection(workspace) {
           <h2 id="panel-shows-title" class="admin-panel__title">Jadwal Panggung (${shows.length})</h2>
           <p class="admin-panel__desc">Tambahkan jadwal panggung baru di urutan paling atas. Centang "Akan Datang" agar otomatis muncul di bagian teratas Home dan Schedule.</p>
         </div>
-        <button type="button" id="add-show-btn" class="btn btn--gold btn--sm">+ Tambah Jadwal Baru</button>
+        <button type="button" id="add-show-btn" class="btn btn--primary btn--sm">+ Tambah Jadwal Baru</button>
       </div>
 
       <div class="field">
@@ -1051,9 +1125,9 @@ function renderVideosSection(workspace) {
       <div class="admin-panel__head">
         <div>
           <h2 id="panel-videos-title" class="admin-panel__title">Video YouTube (${videos.length})</h2>
-          <p class="admin-panel__desc">Tempel link YouTube biasa (youtu.be atau youtube.com/watch). ID video otomatis terbaca untuk pemutar modal di EPK.</p>
+          <p class="admin-panel__desc">Tempel link YouTube biasa. ID video otomatis terbaca untuk pemutar modal di EPK.</p>
         </div>
-        <button type="button" id="add-video-btn" class="btn btn--gold btn--sm">+ Tambah Video</button>
+        <button type="button" id="add-video-btn" class="btn btn--primary btn--sm">+ Tambah Video</button>
       </div>
 
       <div class="item-stack">
@@ -1192,7 +1266,7 @@ function renderContactSectionAdmin(workspace) {
       <div class="admin-panel__head">
         <div>
           <h2 id="panel-contact-title" class="admin-panel__title">Kontak Booking, DSP &amp; Media Sosial</h2>
-          <p class="admin-panel__desc">Semua tombol WhatsApp, Email, Salin Kontak, dan pemutar Spotify mengambil datanya dari bagian ini.</p>
+          <p class="admin-panel__desc">Semua tombol WhatsApp, Email, Salin Kontak, dan tautan default Spotify, Apple Music, serta YouTube Music mengambil datanya dari bagian ini.</p>
         </div>
       </div>
 
@@ -1360,7 +1434,7 @@ function renderGitHubSection(workspace) {
       </div>
 
       <div style="display:flex;flex-wrap:wrap;gap:0.65rem">
-        <button type="button" id="gh-publish-btn" class="btn btn--gold">Simpan &amp; Publikasikan ke GitHub</button>
+        <button type="button" id="gh-publish-btn" class="btn btn--primary">Simpan &amp; Publikasikan ke GitHub</button>
         <button type="button" id="gh-test-btn" class="btn btn--outline-dark">Uji Koneksi Repo</button>
         <button type="button" id="gh-pull-btn" class="btn btn--outline-dark">Ambil Data dari GitHub</button>
         <button type="button" id="gh-clear-token-btn" class="btn btn--danger btn--sm">Hapus Token dari Browser</button>
@@ -1466,7 +1540,7 @@ function renderBackupSection(workspace) {
       <div id="backup-feedback" class="feedback-box" hidden role="status" aria-live="polite"></div>
 
       <div style="display:flex;flex-wrap:wrap;gap:0.75rem">
-        <button type="button" id="backup-download-btn" class="btn btn--gold">Download data/epk.json</button>
+        <button type="button" id="backup-download-btn" class="btn btn--primary">Download data/epk.json</button>
         <label class="file-trigger" style="min-height:46px;padding-inline:1.25rem">
           <span>Impor File epk.json</span>
           <input type="file" id="backup-import-input" accept="application/json,.json">
@@ -1519,9 +1593,6 @@ function renderBackupSection(workspace) {
   });
 }
 
-/* ==========================================================================
-   Download Helper & Navigation Controller
-   ========================================================================== */
 function downloadEpkJson() {
   if (!epkData) return;
   const blob = new Blob([JSON.stringify(epkData, null, 2) + '\n'], { type: 'application/json' });
@@ -1541,46 +1612,24 @@ function renderWorkspace() {
   if (!workspace || !epkData) return;
 
   switch (activeSection) {
-    case 'hero':
-      renderHeroSection(workspace);
-      break;
-    case 'biography':
-      renderBiographySection(workspace);
-      break;
-    case 'members':
-      renderMembersSection(workspace);
-      break;
-    case 'discography':
-      renderDiscographySection(workspace);
-      break;
-    case 'press':
-      renderPressSection(workspace);
-      break;
-    case 'shows':
-      renderShowsSection(workspace);
-      break;
-    case 'videos':
-      renderVideosSection(workspace);
-      break;
-    case 'contact':
-      renderContactSectionAdmin(workspace);
-      break;
-    case 'github':
-      renderGitHubSection(workspace);
-      break;
-    case 'backup':
-      renderBackupSection(workspace);
-      break;
-    default:
-      renderHeroSection(workspace);
+    case 'hero': renderHeroSection(workspace); break;
+    case 'biography': renderBiographySection(workspace); break;
+    case 'members': renderMembersSection(workspace); break;
+    case 'discography': renderDiscographySection(workspace); break;
+    case 'press': renderPressSection(workspace); break;
+    case 'shows': renderShowsSection(workspace); break;
+    case 'videos': renderVideosSection(workspace); break;
+    case 'contact': renderContactSectionAdmin(workspace); break;
+    case 'github': renderGitHubSection(workspace); break;
+    case 'backup': renderBackupSection(workspace); break;
+    default: renderHeroSection(workspace);
   }
 }
 
 function switchSection(sectionId) {
   activeSection = sectionId;
   document.querySelectorAll('.admin-nav-btn').forEach((btn) => {
-    const active = btn.dataset.section === sectionId;
-    btn.setAttribute('aria-current', active ? 'true' : 'false');
+    btn.setAttribute('aria-current', btn.dataset.section === sectionId ? 'true' : 'false');
   });
 
   const mobileLabel = document.getElementById('admin-mobile-active-label');
@@ -1623,9 +1672,7 @@ async function boot() {
   document.getElementById('btn-download-json')?.addEventListener('click', downloadEpkJson);
 
   document.getElementById('btn-preview-epk')?.addEventListener('click', () => {
-    if (epkData && hasUnsavedChanges) {
-      saveLocalDraft(epkData);
-    }
+    if (epkData && hasUnsavedChanges) saveLocalDraft(epkData);
   });
 
   document.getElementById('btn-quick-publish')?.addEventListener('click', async () => {
@@ -1661,8 +1708,8 @@ async function boot() {
     workspace.innerHTML = `
       <div class="state-box" role="alert">
         <p class="state-box__title">Gagal membuka data EPK</p>
-        <p class="state-box__desc">${escapeHtml(err.message)}. Pastikan situs dibuka melalui server web (bukan langsung klik file HTML) atau melalui GitHub Pages.</p>
-        <button type="button" class="btn btn--gold btn--sm" id="retry-admin-load">Muat Ulang</button>
+        <p class="state-box__desc">${escapeHtml(err.message)}. Pastikan situs dibuka melalui server web atau GitHub Pages.</p>
+        <button type="button" class="btn btn--primary btn--sm" id="retry-admin-load">Muat Ulang</button>
       </div>
     `;
     workspace.querySelector('#retry-admin-load')?.addEventListener('click', () => window.location.reload());

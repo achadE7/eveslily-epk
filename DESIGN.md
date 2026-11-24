@@ -1,60 +1,49 @@
-# Eve's Lily EPK: Design Direction
+# Eve's Lily EPK: Design Direction (Perayaan Bintang Jatuh Edition)
 
 ## Design Read
 
-Reading this as: Band Electronic Press Kit (EPK) and built-in GitHub content studio for festival bookers, event promoters, media, and fans of Eve's Lily (Banjarmasin, Kalimantan Selatan), in a celestial-nocturne editorial style themed around the upcoming single "Perayaan Bintang Jatuh", dial **ENERGY 3 / RHYTHM 3 / MOTION 2**.
+Reading this as: Band Electronic Press Kit (EPK) and built-in GitHub content studio for festival bookers, event promoters, media, and fans of Eve's Lily (Banjarmasin, Kalimantan Selatan), in a celestial-nocturne editorial style adapted directly from the official cover artwork of their upcoming single **"Perayaan Bintang Jatuh"**, dial **ENERGY 3 / RHYTHM 3 / MOTION 2**.
 
-## Identity & Mood
+## Palette Provenance (R-01, R-25, R-29)
 
-Eve's Lily blends alternative pop with J-Pop sensibilities. The visual direction evolves their high-contrast black-and-white Canva EPK into a sharper, editorial night-sky aesthetic inspired by their upcoming single, **"Perayaan Bintang Jatuh"** (Celebration of Falling Stars):
-
-- Deep midnight observatory indigo-black (`#060813`) replaces flat black so the page feels like an open night sky rather than a generic dark template.
-- Warm starlight paper (`#F5F3EE`) replaces harsh pure white on Discography and Schedule bands, evoking a printed J-Pop CD lyric booklet while making colorful anime-style cover art pop with clarity.
-- One deliberate meteor-gold accent (`#F2C97D` on dark, `#7D500B` on paper) marks shooting stars, active navigation states, and key booking/listening actions.
-- Identity motif: Eve's Lily's authentic 6-petal circular lily emblem paired with subtle celestial hairline rules and a crisp 4-point star marker reserved strictly as the band's era motif.
-
-## Color System (Verified WCAG AA via contrast-check.py)
-
-Active palette: 2 core color families (Cosmos Midnight + Starlight Paper) + 1 deliberate accent (Meteor Gold).
+Every color is derived directly from Eve's Lily's official *"Perayaan Bintang Jatuh"* single illustration (cobalt night sky, luminous cyan Milky Way & comet core, rose-pink comet tail, crisp starlight white), verified via `contrast-check.py`:
 
 | Token | Hex | Role | Verified Contrast |
 |---|---|---|---|
-| `--bg-cosmos` | `#060813` | Primary dark sky canvas | Base |
-| `--bg-cosmos-elevated` | `#0F1426` | Elevated panels, modals, admin workspace | Base |
-| `--bg-cosmos-nebula` | `#151D38` | Subtle radial zenith sky tint (Hero & Contact only) | Base |
-| `--bg-paper` | `#F5F3EE` | Editorial light contrast sections (Discography, Schedule) | Base |
-| `--bg-paper-card` | `#FFFFFF` | Release tiles & surfaces on starlight paper | Base |
-| `--ink-on-dark` | `#F4F5F8` | Primary text on dark | 18.31:1 on `#060813`, 16.77:1 on `#0F1426` |
-| `--ink-muted-dark` | `#A9B4CC` | Secondary metadata on dark | 9.59:1 on `#060813`, 8.78:1 on `#0F1426` |
-| `--ink-on-light` | `#0D1120` | Primary text on starlight paper | 16.94:1 on `#F5F3EE`, 18.78:1 on `#FFFFFF` |
-| `--ink-muted-light` | `#444D63` | Secondary metadata on starlight paper | 7.61:1 on `#F5F3EE`, 8.44:1 on `#FFFFFF` |
-| `--accent-gold` | `#F2C97D` | Meteor-gold accent on dark surfaces | 12.76:1 on `#060813`, 12.30:1 with `#0B0E1A` text |
-| `--accent-gold-ink` | `#7D500B` | Burnished gold accent on paper surfaces | 6.26:1 on `#F5F3EE`, 6.94:1 on `#FFFFFF` |
-| `--border-interactive-dark` | `#6E7B9C` | Control & input borders on dark | 4.73:1 on `#060813`, 4.33:1 on `#0F1426` (passes 3:1 UI) |
-| `--border-interactive-light` | `#5D657A` | Control & input borders on paper | 5.25:1 on `#F5F3EE` (passes 3:1 UI) |
-| `--status-ok` | `#7BE0AD` | Admin save/sync success text & icon | 11.41:1 on `#0F1426` |
-| `--status-err` | `#FF8A8A` | Admin validation/error text & icon | 8.06:1 on `#0F1426` |
+| `--bg-cosmos` | `#040A1E` | Deep cobalt cosmos night ground | Base |
+| `--bg-cosmos-elevated` | `#0A1638` | Elevated twilight indigo panels, modals, admin | Base |
+| `--bg-cosmos-nebula` | `#102863` | Royal cobalt sky zenith (Hero & Contact) | Base |
+| `--bg-paper` | `#EEF4FC` | Cool starlight paper (Discography & Schedule) | Base |
+| `--bg-paper-card` | `#FFFFFF` | Release cards & elevated light surfaces | Base |
+| `--ink-on-dark` | `#F2F7FF` | Primary starlight text on dark | 18.29:1 on `#040A1E`, 16.48:1 on `#0A1638` |
+| `--ink-muted-dark` | `#A8C2E6` | Secondary metadata on dark | 10.80:1 on `#040A1E`, 9.73:1 on `#0A1638` |
+| `--ink-on-light` | `#0A1533` | Primary midnight text on paper | 16.25:1 on `#EEF4FC`, 17.98:1 on `#FFFFFF` |
+| `--ink-muted-light` | `#3B4E73` | Secondary metadata on paper | 7.52:1 on `#EEF4FC`, 8.32:1 on `#FFFFFF` |
+| `--accent-comet` | `#6FD8FF` | Luminous comet sky-cyan accent on dark | 12.13:1 on `#040A1E`, 12.13:1 with `#040A1E` ink |
+| `--accent-cobalt-on-light` | `#0C4DA2` | Deep cobalt accent on starlight paper | 7.30:1 on `#EEF4FC`, 8.08:1 on `#FFFFFF` |
+| `--accent-rose` | `#F5A4D8` | Comet-tail rose accent (meteor trails & upcoming motif on dark) | 10.48:1 on `#040A1E`, 9.44:1 on `#0A1638` |
+| `--accent-rose-on-light` | `#992970` | Deep comet-rose label on starlight paper | 6.53:1 on `#EEF4FC`, 7.23:1 on `#FFFFFF` |
+| `--border-dark` | `#6C8AC4` | Interactive borders on dark | 5.69:1 on `#040A1E`, 5.12:1 on `#0A1638` |
+| `--border-light` | `#4E638C` | Interactive borders on light paper | 5.44:1 on `#EEF4FC` |
+| `--status-ok` | `#7BE0AD` | Admin success feedback | 11.06:1 on `#0A1638` |
+| `--status-err` | `#FF94A8` | Admin error feedback | 8.49:1 on `#0A1638` |
 
 ## Typography (R-06)
 
-- **Display (`Italiana`, serif)**: Ultra-thin high-contrast serif for monumental section titles (`DISCOGRAPHY`, `PRESS PHOTOS`, `BIOGRAPHY`, `SCHEDULE`, `VIDEO`, `CONTACT`), carrying forward Eve's Lily's signature Art Deco editorial character from their original EPK.
-- **Editorial Serif (`Cormorant Garamond`, italic & regular)**: Used for the opening lyric quote and band name philosophy epigraph, giving musical lyricism a distinct voice from prose.
-- **Body & Interface (`Plus Jakarta Sans`, sans-serif)**: Warm geometric humanist sans designed for crisp readability across Indonesian biographical prose, dense 37-row show schedules, and admin studio forms.
+- **Display (`Italiana`, serif)**: Monumental Art Deco condensed serif for section headings, continuing Eve's Lily's established EPK editorial voice without subtitles cluttering beneath headings.
+- **Editorial Serif (`Cormorant Garamond`, italic & regular)**: Opening lyric quote and biographical headings.
+- **Body & UI (`Plus Jakarta Sans`, sans-serif)**: Clean humanist sans for Indonesian prose, 37-row schedules, and admin editor forms.
 
-## Layout & Rhythm Decisions (R-05, R-14, R-31)
+## Brand Asset Rules (Owner-Specified)
 
-- **Hero**: Full-bleed night sky framing Eve's Lily's studio portrait (`fetchpriority="high"`), overlaid circular lily emblem, lyric quote, and subtle era note for *"Perayaan Bintang Jatuh"*.
-- **Band Profile**: Asymmetric 5:7 split pairing the organic-edge band photo with synchronized biographical facts (no generic card grid).
-- **Discography (Starlight Paper)**: Featured latest release (*Langit pun Bernyanyi*) paired with an integrated Spotify player and DSP links, followed by a filterable catalog where the *BERAWAL* EP spans wider to present its full 6-track list with visual hierarchy.
-- **Press Photos Preview (Cosmos)**: Asymmetric 1-feature + 2-stacked editorial photo layout with click-to-enlarge lightbox and direct Instagram links.
-- **Guestings & Shows Preview (Starlight Paper)**: Clean typographic ledger divided by crisp horizontal rules (no repetitive cards), showing upcoming shows first (if any) followed by recent highlights.
-- **Video Showcase (Cosmos)**: 1 wide featured performance clip above 2 side-by-side clips; clicking loads a native YouTube player inside an accessible modal (zero blocking third-party iframes on initial load).
-- **Contact & Booking Finale**: Full-bleed band lily-shirt photo with an 82% dark cosmos scrim ensuring >10:1 text contrast everywhere, paired with clickable WhatsApp, Email, 1-click Copy Booking Info, and social links.
-- **Admin Editor (`/admin.html`)**: Focused section-based content studio (Hero & Bio, Discography, Press Photos, Schedule, Videos, Members, Contact & GitHub Sync) with live local preview, image upload to GitHub repo, JSON export/import, and zero decorative stat cards.
+- **Header**: Official Eve's Lily circular lily icon (`lily-icon-only.png`) paired with official Eve's Lily wordmark lettering (`wordmark-text-only.png`).
+- **Hero**: Clean cosmos portrait with full circular emblem + wordmark (`logo-emblem-wordmark.png`) and lyric quote. No top era ribbon or sky pause button.
+- **Discography**: Upcoming single *"Perayaan Bintang Jatuh"* appears directly inside Discography with pre-blurred teaser cover art; released singles/EP offer icon-only `44x44px` DSP buttons for Spotify, Apple Music, and YouTube Music (`aria-label` + `title`).
+- **The Meaning of Eve's Lily**: Official circular lily icon without text (`lily-icon-only.png`) and without caption text beneath it.
+- **Members**: No numeric `01 / LINEUP` index labels; per-member `object-position` (`50% 56%` on Yusee matching Canva's exact bass framing).
+- **Contact**: Clearly visible seated band lily-shirt backdrop (`opacity: 0.78` with balanced cobalt scrim while keeping info panels >10:1 contrast) and text-only Eve's Lily wordmark (`wordmark-text-only.png`) at bottom center.
+- **Public Footer & Mobile Drawer**: Strictly public navigation only (`Home`, `Press Photos`, `Biography`, `Schedule`); `/admin.html` is accessed directly by band admins without a public footer link.
 
-## Motion & Accessibility (R-19, R-32, R-39, R-40)
+## Owner Override Record (R-37)
 
-- **Shooting Star Sky Canvas**: Runs exclusively in the Hero (and subtle static starfield in Contact) to express *"Perayaan Bintang Jatuh"*. Includes an explicit **Pause/Play Sky** toggle (`aria-pressed`) because animation exceeds 5 seconds, and freezes automatically under `prefers-reduced-motion: reduce`.
-- **Scroll Reveal**: Single-pass subtle rise (`14px`) via `IntersectionObserver`, disabled when `prefers-reduced-motion: reduce` is set.
-- **Radius Discipline (R-11)**: Sharp editorial corners (`2px`–`4px`) for photographic frames, cards, and inputs; rounded `999px` pill geometry reserved deliberately for primary editorial action buttons and filter chips so controls stand apart from content frames.
-- **Shadows & Glass (R-10, R-12, R-13)**: Flat surfaces by default; subtle backdrop blur (`backdrop-filter`) used on at most 1 element (sticky top navigation bar on scroll); shadow reserved strictly for open modals/lightbox and toast notifications. Zero neon glow spam.
+- **R-39 >5s Motion Pause Control**: Owner explicitly requested removing the visible `"Jeda langit bintang"` button from the Hero sky canvas. Recorded as an explicit owner override under R-37; OS-level `@media (prefers-reduced-motion: reduce)` remains fully enforced to stop all falling-star motion for users who request reduced motion.

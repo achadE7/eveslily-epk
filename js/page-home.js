@@ -10,27 +10,38 @@ import {
   playAudioPreview,
   renderContactSection,
   renderErrorState,
-  safeUrl,
-  showToast
+  safeUrl
 } from './ui-shared.js';
+
+const DSP_ICONS = {
+  spotify: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4.58 14.42a.75.75 0 0 1-1.03.25c-2.82-1.72-6.37-2.11-10.55-1.16a.75.75 0 1 1-.33-1.46c4.57-1.04 8.5-.6 11.66 1.33a.75.75 0 0 1 .25 1.04zm1.47-3.27a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.96-1.4a.94.94 0 1 1-.55-1.8c4.36-1.32 9.78-.68 13.49 1.6a.94.94 0 0 1 .31 1.29zm.13-3.4c-3.87-2.3-10.26-2.51-13.96-1.39a1.12 1.12 0 1 1-.65-2.15c4.24-1.29 11.3-1.04 15.75 1.6a1.12 1.12 0 1 1-1.14 1.94z"/></svg>`,
+  appleMusic: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.75 3.25a1 1 0 0 0-1.02-.12l-8 3.2A1 1 0 0 0 9.1 7.26v8.02a3.45 3.45 0 1 0 1.8 3.02V10.1l6.4-2.56v5.74a3.45 3.45 0 1 0 1.8 3.02V4.1a1 1 0 0 0-.35-.85z"/></svg>`,
+  youtubeMusic: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 17.5a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15zm0-13.7a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zm-2.1 9.1V9.1l5.1 2.9-5.1 2.9z"/></svg>`
+};
+
+function renderDspIconButtons(title, urls, fallbackDsp, variant = 'light') {
+  const spotifyHref = safeUrl(urls.spotifyUrl || fallbackDsp.spotifyArtistUrl);
+  const appleHref = safeUrl(urls.appleMusicUrl || fallbackDsp.appleMusicUrl);
+  const ytmHref = safeUrl(urls.youtubeMusicUrl || fallbackDsp.youtubeMusicUrl);
+  const cls = variant === 'dark' ? 'dsp-icon-btn dsp-icon-btn--dark' : 'dsp-icon-btn';
+
+  const items = [
+    spotifyHref !== '#'
+      ? `<a class="${cls}" href="${escapeHtml(spotifyHref)}" target="_blank" rel="noopener noreferrer" aria-label="Dengarkan ${escapeHtml(title)} di Spotify" title="Spotify">${DSP_ICONS.spotify}</a>`
+      : '',
+    appleHref !== '#'
+      ? `<a class="${cls}" href="${escapeHtml(appleHref)}" target="_blank" rel="noopener noreferrer" aria-label="Dengarkan ${escapeHtml(title)} di Apple Music" title="Apple Music">${DSP_ICONS.appleMusic}</a>`
+      : '',
+    ytmHref !== '#'
+      ? `<a class="${cls}" href="${escapeHtml(ytmHref)}" target="_blank" rel="noopener noreferrer" aria-label="Dengarkan ${escapeHtml(title)} di YouTube Music" title="YouTube Music">${DSP_ICONS.youtubeMusic}</a>`
+      : ''
+  ].join('');
+
+  return `<div class="dsp-icon-group">${items}</div>`;
+}
 
 function renderHero(data) {
   const { meta, hero } = data;
-  const eraWrap = document.getElementById('hero-era');
-  if (eraWrap) {
-    if (meta?.era?.enabled && meta.era.title) {
-      eraWrap.hidden = false;
-      eraWrap.innerHTML = `
-        <svg class="hero__era-star" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2L12 2z"/>
-        </svg>
-        <span>${escapeHtml(meta.era.label || 'Rilisan Mendatang')}:</span>
-        <span class="hero__era-title">${escapeHtml(meta.era.title)}</span>
-      `;
-    } else {
-      eraWrap.hidden = true;
-    }
-  }
 
   const photo = document.getElementById('hero-photo');
   if (photo && hero?.image) {
@@ -97,7 +108,7 @@ function renderProfilePreview(data) {
         <h2 class="profile-copy__heading">${escapeHtml(bio.headline || "Eve's Lily")}</h2>
         <div class="prose">${proseHtml}</div>
         <div class="profile-copy__cta">
-          <a href="./biography.html" class="btn btn--gold">Baca Biografi &amp; Personel</a>
+          <a href="./biography.html" class="btn btn--primary">Baca Biografi &amp; Personel</a>
           <a href="#contact" class="btn btn--outline-dark">Hubungi Booking</a>
         </div>
       </div>
@@ -117,7 +128,10 @@ function renderDiscography(data) {
     ? `https://open.spotify.com/embed/artist/${encodeURIComponent(dsp.spotifyArtistId)}?utm_source=generator&theme=0`
     : extractSpotifyEmbedUrl(dsp.spotifyArtistUrl);
 
-  const featured = releases.find((r) => r.featured) || releases[0];
+  const featured =
+    releases.find((r) => r.featured && !r.upcoming) ||
+    releases.find((r) => !r.upcoming) ||
+    releases[0];
 
   if (!releases.length) {
     spotlightEl.innerHTML = '';
@@ -125,18 +139,14 @@ function renderDiscography(data) {
     gridEl.innerHTML = `
       <div class="state-box" style="grid-column:1/-1">
         <p class="state-box__title">Belum ada data rilis di discography</p>
-        <p class="state-box__desc">Tambahkan single atau mini album melalui halaman Editor EPK agar muncul di sini.</p>
-        <a href="./admin.html" class="btn btn--solid-light btn--sm">Buka Editor EPK</a>
       </div>
     `;
     return;
   }
 
-  const dspButtons = [
-    dsp.spotifyArtistUrl ? `<a class="btn btn--solid-light btn--sm" href="${escapeHtml(safeUrl(dsp.spotifyArtistUrl))}" target="_blank" rel="noopener noreferrer">Spotify</a>` : '',
-    dsp.youtubeMusicUrl ? `<a class="btn btn--outline-light btn--sm" href="${escapeHtml(safeUrl(dsp.youtubeMusicUrl))}" target="_blank" rel="noopener noreferrer">YouTube Music</a>` : '',
-    dsp.appleMusicUrl ? `<a class="btn btn--outline-light btn--sm" href="${escapeHtml(safeUrl(dsp.appleMusicUrl))}" target="_blank" rel="noopener noreferrer">Apple Music</a>` : ''
-  ].join('');
+  const featuredDspIcons = featured.upcoming
+    ? `<span class="release-card__coming-note">Segera hadir di DSP</span>`
+    : renderDspIconButtons(featured.title, featured, dsp);
 
   spotlightEl.innerHTML = `
     <div class="featured-release">
@@ -153,7 +163,7 @@ function renderDiscography(data) {
         <h3 class="featured-release__title">${escapeHtml(featured.title)}</h3>
         <p class="featured-release__meta">${escapeHtml([featured.type, featured.releaseDate || featured.year].filter(Boolean).join(' / '))}</p>
         ${featured.subtitle ? `<p class="featured-release__meta">${escapeHtml(featured.subtitle)}</p>` : ''}
-        <div class="dsp-row">${dspButtons}</div>
+        <div style="margin-top:0.85rem">${featuredDspIcons}</div>
       </div>
     </div>
 
@@ -162,7 +172,7 @@ function renderDiscography(data) {
         defaultSpotifyEmbed
           ? `<div class="spotify-box__fallback" aria-hidden="true">
               <strong style="color:var(--ink-on-dark)">Pemutar Spotify Eve's Lily</strong>
-              <span>Jika pemutar belum muncul, gunakan tombol Spotify di sebelah kiri.</span>
+              <span>Gunakan ikon DSP di samping bila pemutar belum muncul.</span>
             </div>
             <iframe
               id="spotify-embed-frame"
@@ -173,7 +183,7 @@ function renderDiscography(data) {
               loading="lazy"
               allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
             ></iframe>`
-          : `<div class="state-box" style="height:100%;justify-content:center"><p class="state-box__title">Pemutar Spotify belum dikonfigurasi</p><p class="state-box__desc">Masukkan tautan Spotify Artist di Editor EPK.</p></div>`
+          : `<div class="state-box" style="height:100%;justify-content:center"><p class="state-box__title">Pemutar Spotify belum dikonfigurasi</p></div>`
       }
     </div>
   `;
@@ -213,7 +223,6 @@ function renderDiscography(data) {
       gridEl.innerHTML = `
         <div class="state-box" style="grid-column:1/-1">
           <p class="state-box__title">Tidak ada rilis pada kategori "${escapeHtml(activeCategory)}"</p>
-          <p class="state-box__desc">Pilih kategori lain untuk melihat katalog Eve's Lily.</p>
           <button type="button" class="btn btn--outline-light btn--sm" id="reset-discog-filter">Tampilkan Semua</button>
         </div>
       `;
@@ -228,43 +237,81 @@ function renderDiscography(data) {
     gridEl.innerHTML = filtered
       .map((item) => {
         const isEp = item.type === 'EP' || (Array.isArray(item.tracklist) && item.tracklist.length > 0);
-        const tracklistHtml =
-          Array.isArray(item.tracklist) && item.tracklist.length
-            ? `<ol class="tracklist">${item.tracklist.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}</ol>`
-            : '';
+        const isUpcoming = Boolean(item.upcoming);
+        const tracks = Array.isArray(item.tracklist) ? item.tracklist : [];
+        const tracklistHtml = tracks.length
+          ? `<ol class="tracklist">${tracks
+              .map(
+                (t, idx) =>
+                  `<li class="tracklist__item"><span class="tracklist__num">${String(idx + 1).padStart(2, '0')}</span><span>${escapeHtml(t)}</span></li>`
+              )
+              .join('')}</ol>`
+          : '';
 
         const hasAudio = Boolean(item.audioPreviewUrl);
-        const itemSpotifyEmbed = extractSpotifyEmbedUrl(item.spotifyUrl);
-        const listenHref = safeUrl(item.spotifyUrl || dsp.spotifyArtistUrl);
+        let actionsHtml = '';
 
-        let actionHtml = '';
-        if (hasAudio) {
-          actionHtml += `<button type="button" class="btn btn--solid-light btn--sm" data-play-audio="${escapeHtml(item.id)}">Putar Pratinjau</button>`;
+        if (isUpcoming) {
+          actionsHtml = `<span class="release-card__coming-note">Rilisan Mendatang</span>`;
+        } else if (isEp) {
+          actionsHtml = `
+            <span class="ep-listen-label">Dengarkan Mini Album</span>
+            ${renderDspIconButtons(item.title, item, dsp, 'dark')}
+            ${hasAudio ? `<button type="button" class="btn btn--primary btn--sm" data-play-audio="${escapeHtml(item.id)}">Pratinjau</button>` : ''}
+          `;
+        } else {
+          actionsHtml = renderDspIconButtons(item.title, item, dsp, 'light');
+          if (hasAudio) {
+            actionsHtml += `<button type="button" class="btn btn--solid-light btn--sm" data-play-audio="${escapeHtml(item.id)}">Pratinjau</button>`;
+          }
         }
-        if (itemSpotifyEmbed) {
-          actionHtml += `<button type="button" class="btn btn--outline-light btn--sm" data-load-spotify="${escapeHtml(itemSpotifyEmbed)}" data-track-title="${escapeHtml(item.title)}">Muat di Pemutar</button>`;
-        } else if (listenHref !== '#') {
-          actionHtml += `<a class="btn btn--outline-light btn--sm" href="${escapeHtml(listenHref)}" target="_blank" rel="noopener noreferrer">Dengarkan di Spotify</a>`;
-        }
+
+        const cardClasses = [
+          'release-card',
+          isEp ? 'release-card--ep' : '',
+          isUpcoming ? 'release-card--upcoming' : ''
+        ]
+          .filter(Boolean)
+          .join(' ');
+
+        const metaHeaderHtml = isEp
+          ? `<div class="ep-head">
+              <span class="release-card__type">Mini Album / ${escapeHtml(item.type)} (${escapeHtml(item.year)})</span>
+              ${tracks.length ? `<span class="ep-count">${tracks.length} Lagu</span>` : ''}
+            </div>`
+          : `<span class="release-card__type ${isUpcoming ? 'release-card__type--upcoming' : ''}">
+              ${isUpcoming ? `${escapeHtml(item.type)} / Rilisan Mendatang` : `${escapeHtml(item.type)} (${escapeHtml(item.year)})`}
+            </span>`;
+
+        const subtitleText = isEp
+          ? [item.subtitle, item.releaseDate].filter(Boolean).join(' · ')
+          : item.subtitle && !isUpcoming
+            ? item.subtitle
+            : '';
 
         return `
-          <article class="release-card ${isEp ? 'release-card--ep' : ''}">
+          <article class="${cardClasses}">
             <div class="release-card__media">
               <img
-                class="release-card__cover"
+                class="release-card__cover ${item.blurredCover ? 'release-card__cover--blur' : ''}"
                 src="${escapeHtml(safeUrl(item.cover))}"
-                alt="Sampul ${escapeHtml(item.title)}"
+                alt="${isUpcoming ? `Teaser sampul ${escapeHtml(item.title)}` : `Sampul ${escapeHtml(item.title)}`}"
                 width="${Number(item.coverWidth) || 480}"
                 height="${Number(item.coverHeight) || 480}"
                 loading="lazy"
               />
+              ${
+                isUpcoming
+                  ? `<div class="release-card__upcoming-overlay"><span class="release-card__upcoming-tag">Rilisan Mendatang</span></div>`
+                  : ''
+              }
             </div>
             <div class="release-card__body">
-              <span class="release-card__type">${escapeHtml(item.type)} (${escapeHtml(item.year)})</span>
+              ${metaHeaderHtml}
               <h3 class="release-card__title">${escapeHtml(item.title)}</h3>
-              ${item.subtitle ? `<p class="release-card__sub">${escapeHtml(item.subtitle)}</p>` : ''}
+              ${subtitleText ? `<p class="release-card__sub">${escapeHtml(subtitleText)}</p>` : ''}
               ${tracklistHtml}
-              <div class="release-card__actions">${actionHtml}</div>
+              <div class="release-card__actions">${actionsHtml}</div>
             </div>
           </article>
         `;
@@ -275,17 +322,6 @@ function renderDiscography(data) {
       btn.addEventListener('click', () => {
         const track = releases.find((r) => r.id === btn.dataset.playAudio);
         if (track) playAudioPreview(track);
-      });
-    });
-
-    gridEl.querySelectorAll('[data-load-spotify]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const frame = document.getElementById('spotify-embed-frame');
-        if (frame) {
-          frame.src = btn.dataset.loadSpotify;
-          frame.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          showToast(`Memuat "${btn.dataset.trackTitle}" di pemutar Spotify.`);
-        }
       });
     });
   }
@@ -308,12 +344,7 @@ function renderPressHighlights(data) {
   const items = highlights.length ? highlights : allPhotos.slice(0, 3);
 
   if (!items.length) {
-    root.innerHTML = `
-      <div class="state-box">
-        <p class="state-box__title">Belum ada foto panggung</p>
-        <p class="state-box__desc">Tambahkan dokumentasi panggung Eve's Lily melalui Editor EPK.</p>
-      </div>
-    `;
+    root.innerHTML = `<div class="state-box"><p class="state-box__title">Belum ada foto panggung</p></div>`;
     return;
   }
 
@@ -371,12 +402,7 @@ function renderShowsPreview(data) {
   }
 
   if (!shows.length) {
-    root.innerHTML = `
-      <div class="state-box">
-        <p class="state-box__title">Belum ada jadwal panggung tercatat</p>
-        <p class="state-box__desc">Tambahkan jadwal panggung mendatang atau arsip penampilan melalui Editor EPK.</p>
-      </div>
-    `;
+    root.innerHTML = `<div class="state-box"><p class="state-box__title">Belum ada jadwal panggung tercatat</p></div>`;
     return;
   }
 
@@ -409,12 +435,7 @@ function renderVideos(data) {
 
   const videos = Array.isArray(data.videos) ? data.videos : [];
   if (!videos.length) {
-    root.innerHTML = `
-      <div class="state-box">
-        <p class="state-box__title">Belum ada video penampilan</p>
-        <p class="state-box__desc">Tambahkan tautan YouTube melalui Editor EPK.</p>
-      </div>
-    `;
+    root.innerHTML = `<div class="state-box"><p class="state-box__title">Belum ada video penampilan</p></div>`;
     return;
   }
 
@@ -445,7 +466,7 @@ function renderVideos(data) {
               <span class="video-card__meta">${escapeHtml([video.venue, video.year].filter(Boolean).join(' / '))}</span>
               <h3 class="video-card__title">${escapeHtml(video.title)}</h3>
               <div class="video-card__actions">
-                <button type="button" class="btn btn--gold btn--sm" data-video-index="${idx}">Putar Video</button>
+                <button type="button" class="btn btn--primary btn--sm" data-video-index="${idx}">Putar Video</button>
                 <a href="${escapeHtml(safeUrl(video.youtubeUrl))}" target="_blank" rel="noopener noreferrer" class="btn btn--outline-dark btn--sm">Buka di YouTube</a>
               </div>
             </div>
@@ -465,7 +486,10 @@ function renderVideos(data) {
 
 async function boot() {
   initNavigation();
-  initSkyCanvas(document.getElementById('cosmos-sky'), document.getElementById('sky-toggle'));
+  initSkyCanvas(
+    document.getElementById('cosmos-sky-back'),
+    document.getElementById('cosmos-sky-front')
+  );
   initScrollReveal();
 
   try {

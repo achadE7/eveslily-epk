@@ -14,7 +14,6 @@ async function boot() {
   const filtersEl = document.getElementById('schedule-filters');
   const searchInput = document.getElementById('schedule-search');
   const ledgerRoot = document.getElementById('schedule-ledger');
-  const summaryEl = document.getElementById('schedule-summary');
 
   try {
     const { data, source } = await loadEpkData();
@@ -82,16 +81,12 @@ async function boot() {
         return haystack.includes(normalized);
       });
 
-      if (summaryEl) {
-        summaryEl.textContent = `Menampilkan ${filtered.length} dari ${shows.length} jadwal panggung dan penampilan Eve's Lily.`;
-      }
-
       if (!filtered.length) {
         ledgerRoot.innerHTML = `
           <div class="state-box">
             <p class="state-box__title">Tidak ada jadwal yang cocok</p>
-            <p class="state-box__desc">Ubah kata kunci pencarian atau pilih tahun lain untuk melihat seluruh riwayat panggung.</p>
-            <button type="button" class="btn btn--gold btn--sm" id="reset-schedule-filter">Reset Pencarian</button>
+            <p class="state-box__desc">Ubah kata kunci pencarian atau pilih tahun lain.</p>
+            <button type="button" class="btn btn--primary btn--sm" id="reset-schedule-filter">Reset Pencarian</button>
           </div>
         `;
         ledgerRoot.querySelector('#reset-schedule-filter')?.addEventListener('click', () => {

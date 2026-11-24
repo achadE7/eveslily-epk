@@ -15,7 +15,6 @@ async function boot() {
 
   const filtersEl = document.getElementById('press-filters');
   const gridEl = document.getElementById('press-gallery');
-  const summaryEl = document.getElementById('press-summary');
 
   try {
     const { data, source } = await loadEpkData();
@@ -50,16 +49,12 @@ async function boot() {
 
     function renderGallery() {
       const visible = activeYear === 'Semua' ? photos : photos.filter((p) => p.year === activeYear);
-      if (summaryEl) {
-        summaryEl.textContent = `Menampilkan ${visible.length} dari ${photos.length} dokumentasi panggung Eve's Lily. Klik foto untuk melihat ukuran penuh.`;
-      }
 
       if (!visible.length) {
         gridEl.innerHTML = `
           <div class="state-box" style="grid-column:1/-1">
             <p class="state-box__title">Belum ada foto untuk filter ini</p>
-            <p class="state-box__desc">Pilih tahun lain atau tambahkan dokumentasi baru melalui halaman Editor EPK.</p>
-            <button type="button" class="btn btn--gold btn--sm" id="reset-press-filter">Tampilkan Semua Foto</button>
+            <button type="button" class="btn btn--primary btn--sm" id="reset-press-filter">Tampilkan Semua Foto</button>
           </div>
         `;
         gridEl.querySelector('#reset-press-filter')?.addEventListener('click', () => {
