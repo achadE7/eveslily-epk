@@ -1,0 +1,940 @@
+{
+  "meta": {
+    "bandName": "Eve's Lily",
+    "origin": "Banjarmasin, Kalimantan Selatan",
+    "genre": "Pop-Alternatif / J-Pop",
+    "formedYear": "2018",
+    "releasedTracksCount": "11 Lagu",
+    "era": {
+      "enabled": true,
+      "label": "Rilisan Mendatang",
+      "title": "Per***** Bintang Ja***",
+      "subtitle": "Tema visual EPK menyambut single terbaru Eve's Lily"
+    },
+    "updatedAt": "2026-11-24"
+  },
+  "hero": {
+    "image": "assets/brand/hero-band.jpg",
+    "imageWidth": 1599,
+    "imageHeight": 1066,
+    "imageAlt": "Foto formasi studio band Eve's Lily",
+    "logoWordmark": "assets/brand/logo-emblem-wordmark.png",
+    "logoWordmarkWidth": 799,
+    "logoWordmarkHeight": 517,
+    "wordmarkWhite": "assets/brand/wordmark-white.png",
+    "wordmarkWhiteWidth": 799,
+    "wordmarkWhiteHeight": 517,
+    "lilyEmblem": "assets/brand/lily-emblem-white.png",
+    "lilyEmblemWidth": 1599,
+    "lilyEmblemHeight": 1035,
+    "lyricQuote": "Kini tangguh 'ku tantang pagi. Usai lara tak takut lagi. Kar'na hadirmu di sini, langit pun bernyanyi.",
+    "lyricSource": "Langit pun Bernyanyi (2025)"
+  },
+  "biography": {
+    "headline": "Eve's Lily: Langit pun Bernyanyi",
+    "bandPhoto": "assets/brand/bio-band.jpg",
+    "bandPhotoWidth": 800,
+    "bandPhotoHeight": 533,
+    "bandPhotoAlt": "Lima personel Eve's Lily berpose santai di studio",
+    "highlights": [
+      {
+        "label": "Asal",
+        "value": "Banjarmasin, Kalimantan Selatan"
+      },
+      {
+        "label": "Genre",
+        "value": "Pop-Alternatif & J-Pop"
+      },
+      {
+        "label": "Terbentuk",
+        "value": "2018"
+      },
+      {
+        "label": "Karya",
+        "value": "11 Lagu Dirilis"
+      },
+      {
+        "label": "Soundtrack",
+        "value": "OST Troublemaker 2: Beyond Dreams"
+      }
+    ],
+    "paragraphs": [
+      "Eve's Lily adalah band yang mengusung genre pop-alternatif dengan sentuhan nuansa J-Pop, yang berasal dari Banjarmasin, Kalimantan Selatan.",
+      "Terbentuk pada tahun 2018 yang pada awalnya hanya berfokus pada event Jejepangan, hingga pada akhirnya memutuskan untuk berkarya dan melebarkan sayap ke pasar global.",
+      "Pada formasi awal band ini terdiri dari Aya (Vocal), Heldi (Guitar), Yusee (Bass), Eza (Drum), Arif (Guitar), dan Dini (Keyboard). Lalu pada tahun 2021, Arif dan Dini meninggalkan band, dan pada tahun 2022 Haikal bergabung mengisi posisi gitaris. Pada tahun 2024, Aya memutuskan untuk meninggalkan band, dan Kezia mengisi posisi vokalis pada tahun 2025.",
+      "Eve's Lily saat ini telah merilis 11 buah lagu, di mana 5 lagu berada pada satu mini album berjudul \"Berawal\" yang rilis pada pertengahan tahun 2023, 3 lagu dalam konsep \"Trilogi\" yang dirilis setiap bulan dan selesai di bulan Desember 2023, lalu \"Janji\" yang rilis di bulan Januari 2024, \"Teman Saja\" yang rilis tanggal 7 Juli 2024, dan \"Langit pun Bernyanyi\" yang rilis tanggal 29 Agustus 2025 sebagai penanda era baru Eve's Lily bersama suara baru dari Kezia.",
+      "Pada tahun 2025, lagu \"Bukan Pemuja\" yang merupakan salah satu single dari konsep Trilogi terpilih menjadi soundtrack game lokal Indonesia berjudul \"Troublemaker 2: Beyond Dreams\" yang rilis pada 15 September 2025."
+    ],
+    "philosophyTitle": "The Meaning of Eve's Lily",
+    "philosophyParagraphs": [
+      "Eve's Lily diambil dari nama bahasa Inggris dari \"Hawa\" yaitu \"Eve\", sehingga secara harfiah berarti \"Bunga Lily milik Hawa\". Dalam legenda, Hawa pernah menangis saat menerima cobaan dari Tuhan. Air matanya yang jatuh ke tanah langsung berubah menjadi banyak bunga lily.",
+      "Memakai nama Eve's Lily sebagai nama band bermakna bahwa dari semua perjuangan dan cobaan yang kami lewati, kami berharap bisa menumbuhkan keindahan untuk kami sendiri dan orang-orang yang menikmati lagu-lagu kami, seperti layaknya bunga lily yang tumbuh saat Hawa meneteskan air matanya ke tanah.",
+      "Bunga lily itu pun digambarkan sebagai simbol \"Kehidupan dan Harapan Baru\". Dari situlah lahir filosofi Eve's Lily: berharap tumbuhnya keindahan baru melalui musik dan lagu yang kami ciptakan."
+    ]
+  },
+  "members": [
+    {
+      "id": "kezia",
+      "name": "Kezia",
+      "role": "Vocal",
+      "photo": "assets/members/kezia.jpg",
+      "width": 1560,
+      "height": 1040,
+      "note": "Bergabung sebagai vokalis sejak 2025"
+    },
+    {
+      "id": "heldi",
+      "name": "Heldi",
+      "role": "Guitar",
+      "photo": "assets/members/heldi.jpg",
+      "width": 800,
+      "height": 533,
+      "note": "Formasi awal sejak 2018"
+    },
+    {
+      "id": "haikal",
+      "name": "Haikal",
+      "role": "Guitar",
+      "photo": "assets/members/haikal.jpg",
+      "width": 800,
+      "height": 800,
+      "note": "Bergabung sejak 2022"
+    },
+    {
+      "id": "yusee",
+      "name": "Yusee",
+      "role": "Bass",
+      "photo": "assets/members/yusee.jpg",
+      "width": 533,
+      "height": 799,
+      "note": "Formasi awal sejak 2018"
+    },
+    {
+      "id": "eza",
+      "name": "Eza",
+      "role": "Drum",
+      "photo": "assets/members/eza.jpg",
+      "width": 799,
+      "height": 533,
+      "note": "Formasi awal sejak 2018"
+    },
+    {
+      "id": "rosa",
+      "name": "Rosa",
+      "role": "Add. Vocal",
+      "photo": "assets/members/rosa.jpg",
+      "width": 799,
+      "height": 533,
+      "note": "Additional Vocal & kolaborator panggung"
+    }
+  ],
+  "dsp": {
+    "spotifyArtistUrl": "https://open.spotify.com/artist/7MkDOoJN6vpxBg9WruVRJQ?si=rLt2rv9pReeu3ZYOjaQXPQ",
+    "spotifyArtistId": "7MkDOoJN6vpxBg9WruVRJQ",
+    "youtubeMusicUrl": "https://music.youtube.com/channel/UCUrFSYzEDyhDlj-oedMLKfg?si=RAJb7zBwIPcUOoTk",
+    "appleMusicUrl": "https://music.apple.com/us/artist/eves-lily/1564687619"
+  },
+  "discography": [
+    {
+      "id": "langit-pun-bernyanyi",
+      "title": "Langit pun Bernyanyi",
+      "type": "Single",
+      "year": "2025",
+      "releaseDate": "29 Agustus 2025",
+      "subtitle": "Era baru bersama vokalis Kezia",
+      "featured": true,
+      "category": "Single",
+      "cover": "assets/covers/10-langit-pun-bernyanyi.jpg",
+      "coverWidth": 480,
+      "coverHeight": 480,
+      "tracklist": [],
+      "spotifyUrl": "",
+      "audioPreviewUrl": ""
+    },
+    {
+      "id": "teman-saja",
+      "title": "Teman Saja",
+      "type": "Single",
+      "year": "2024",
+      "releaseDate": "7 Juli 2024",
+      "subtitle": "",
+      "featured": false,
+      "category": "Single",
+      "cover": "assets/covers/09-teman-saja.jpg",
+      "coverWidth": 480,
+      "coverHeight": 480,
+      "tracklist": [],
+      "spotifyUrl": "",
+      "audioPreviewUrl": ""
+    },
+    {
+      "id": "janji",
+      "title": "Janji",
+      "type": "Single",
+      "year": "2024",
+      "releaseDate": "Januari 2024",
+      "subtitle": "",
+      "featured": false,
+      "category": "Single",
+      "cover": "assets/covers/08-janji.jpg",
+      "coverWidth": 480,
+      "coverHeight": 480,
+      "tracklist": [],
+      "spotifyUrl": "",
+      "audioPreviewUrl": ""
+    },
+    {
+      "id": "syair-babak-akhir",
+      "title": "Syair Babak Akhir",
+      "type": "Single",
+      "year": "2023",
+      "releaseDate": "Desember 2023",
+      "subtitle": "Conclusion of the Trilogy",
+      "featured": false,
+      "category": "Trilogi",
+      "cover": "assets/covers/07-syair-babak-akhir.jpg",
+      "coverWidth": 480,
+      "coverHeight": 480,
+      "tracklist": [],
+      "spotifyUrl": "",
+      "audioPreviewUrl": ""
+    },
+    {
+      "id": "ambivalen",
+      "title": "AMBIVALEN",
+      "type": "Single",
+      "year": "2023",
+      "releaseDate": "November 2023",
+      "subtitle": "Second Track of the Trilogy",
+      "featured": false,
+      "category": "Trilogi",
+      "cover": "assets/covers/06-ambivalen.jpg",
+      "coverWidth": 480,
+      "coverHeight": 480,
+      "tracklist": [],
+      "spotifyUrl": "",
+      "audioPreviewUrl": ""
+    },
+    {
+      "id": "bukan-pemuja",
+      "title": "Bukan Pemuja",
+      "type": "Single",
+      "year": "2023",
+      "releaseDate": "Oktober 2023",
+      "subtitle": "Trilogy Opener, OST Troublemaker 2: Beyond Dreams",
+      "featured": false,
+      "category": "Trilogi",
+      "cover": "assets/covers/05-bukan-pemuja.jpg",
+      "coverWidth": 480,
+      "coverHeight": 480,
+      "tracklist": [],
+      "spotifyUrl": "",
+      "audioPreviewUrl": ""
+    },
+    {
+      "id": "berawal-ep",
+      "title": "BERAWAL",
+      "type": "EP",
+      "year": "2023",
+      "releaseDate": "Pertengahan 2023",
+      "subtitle": "Mini Album Pertama",
+      "featured": false,
+      "category": "EP",
+      "cover": "assets/covers/04-berawal-ep.jpg",
+      "coverWidth": 480,
+      "coverHeight": 480,
+      "tracklist": [
+        "Menyatu",
+        "Perang Batin",
+        "Bulir Kenangan",
+        "Dandelion",
+        "Hei, Kau! Pahlawan!",
+        "Bulir Kenangan (Acoustic Version)"
+      ],
+      "spotifyUrl": "",
+      "audioPreviewUrl": ""
+    },
+    {
+      "id": "bulir-kenangan",
+      "title": "Bulir Kenangan",
+      "type": "Single",
+      "year": "2022",
+      "releaseDate": "2022",
+      "subtitle": "",
+      "featured": false,
+      "category": "Single",
+      "cover": "assets/covers/03-bulir-kenangan.jpg",
+      "coverWidth": 480,
+      "coverHeight": 480,
+      "tracklist": [],
+      "spotifyUrl": "",
+      "audioPreviewUrl": ""
+    },
+    {
+      "id": "perang-batin",
+      "title": "Perang Batin",
+      "type": "Single",
+      "year": "2022",
+      "releaseDate": "2022",
+      "subtitle": "",
+      "featured": false,
+      "category": "Single",
+      "cover": "assets/covers/02-perang-batin.jpg",
+      "coverWidth": 480,
+      "coverHeight": 480,
+      "tracklist": [],
+      "spotifyUrl": "",
+      "audioPreviewUrl": ""
+    },
+    {
+      "id": "menyatu",
+      "title": "Menyatu",
+      "type": "Single",
+      "year": "2021",
+      "releaseDate": "2021",
+      "subtitle": "Single Debut",
+      "featured": false,
+      "category": "Single",
+      "cover": "assets/covers/01-menyatu.jpg",
+      "coverWidth": 480,
+      "coverHeight": 480,
+      "tracklist": [],
+      "spotifyUrl": "",
+      "audioPreviewUrl": ""
+    }
+  ],
+  "pressPhotos": [
+    {
+      "id": "hollowfest-2025",
+      "title": "Hollowfest: Pop of View",
+      "venue": "Kota Lama Banjarmasin",
+      "year": "2025",
+      "image": "assets/press/01-hollowfest-2025.jpg",
+      "width": 640,
+      "height": 800,
+      "instagramUrl": "https://www.instagram.com/p/DRJYZCpkv4R/?img_index=1",
+      "highlight": true
+    },
+    {
+      "id": "senyawa-soundscape-2025",
+      "title": "Senyawa Soundscape",
+      "venue": "Wetland Square",
+      "year": "2025",
+      "image": "assets/press/02-senyawa-soundscape-2025.jpg",
+      "width": 640,
+      "height": 800,
+      "instagramUrl": "https://www.instagram.com/p/DPP3BmqkpfR/",
+      "highlight": false
+    },
+    {
+      "id": "liburland-2025",
+      "title": "Liburland Festival 2025",
+      "venue": "Amanah Borneo Park",
+      "year": "2025",
+      "image": "assets/press/03-liburland-2025.jpg",
+      "width": 800,
+      "height": 533,
+      "instagramUrl": "https://www.instagram.com/p/DI2hIRMSIoz/",
+      "highlight": true
+    },
+    {
+      "id": "ytta-vol3-2024",
+      "title": "YTTA Vol. 3",
+      "venue": "Wetland Square, Banjarmasin",
+      "year": "2024",
+      "image": "assets/press/04-ytta-vol3-2024.jpg",
+      "width": 640,
+      "height": 800,
+      "instagramUrl": "https://www.instagram.com/p/DEThbxGSacB/",
+      "highlight": false
+    },
+    {
+      "id": "kyoto-festival-2024",
+      "title": "KYO-TO Festival",
+      "venue": "Banjarmasin",
+      "year": "2024",
+      "image": "assets/press/05-kyoto-festival-2024.jpg",
+      "width": 640,
+      "height": 800,
+      "instagramUrl": "https://www.instagram.com/p/C7BYHo6vi85/?img_index=1",
+      "highlight": false
+    },
+    {
+      "id": "suzuki-day-2024",
+      "title": "Suzuki Day 2024",
+      "venue": "Duta Mall, Banjarmasin",
+      "year": "2024",
+      "image": "assets/press/06-suzuki-day-2024.jpg",
+      "width": 660,
+      "height": 370,
+      "instagramUrl": "https://www.instagram.com/p/Cwg8Z4UPIz8/",
+      "highlight": false
+    },
+    {
+      "id": "rod-2023",
+      "title": "R.O.D 2023: Across the Dream Sky",
+      "venue": "Banjarmasin",
+      "year": "2023",
+      "image": "assets/press/07-rod-2023.jpg",
+      "width": 800,
+      "height": 533,
+      "instagramUrl": "https://www.instagram.com/p/C1MNTSng_Ry/",
+      "highlight": false
+    },
+    {
+      "id": "gadgetmart-2023",
+      "title": "Gadgetmart: Japanese Festival",
+      "venue": "Banjarmasin",
+      "year": "2023",
+      "image": "assets/press/08-gadgetmart-2023.jpg",
+      "width": 800,
+      "height": 533,
+      "instagramUrl": "https://www.instagram.com/p/C3PZZFUPuCN/",
+      "highlight": false
+    },
+    {
+      "id": "dreamfest-2023",
+      "title": "DreamFest",
+      "venue": "Amanah Borneo Park, Banjarbaru",
+      "year": "2023",
+      "image": "assets/press/09-dreamfest-2023.jpg",
+      "width": 800,
+      "height": 533,
+      "instagramUrl": "https://www.instagram.com/p/Cz7leGqBoVj/",
+      "highlight": false
+    },
+    {
+      "id": "banjarmasin-matsuri-2023",
+      "title": "Banjarmasin Matsuri 2023",
+      "venue": "Banjarmasin",
+      "year": "2023",
+      "image": "assets/press/10-banjarmasin-matsuri-2023.jpg",
+      "width": 800,
+      "height": 533,
+      "instagramUrl": "https://www.instagram.com/p/CzkyB0tO2xR/",
+      "highlight": false
+    },
+    {
+      "id": "kyou-no-matsuri-2023",
+      "title": "Kyou no Matsuri",
+      "venue": "Banjarmasin",
+      "year": "2023",
+      "image": "assets/press/11-kyou-no-matsuri-2023.jpg",
+      "width": 800,
+      "height": 800,
+      "instagramUrl": "https://www.instagram.com/p/Cymz5juPK0g/",
+      "highlight": false
+    },
+    {
+      "id": "oretachi-rising-star-2023",
+      "title": "Oretachi x Rising Star",
+      "venue": "Banjarmasin",
+      "year": "2023",
+      "image": "assets/press/12-oretachi-rising-star-2023.jpg",
+      "width": 800,
+      "height": 800,
+      "instagramUrl": "https://www.instagram.com/p/Cxe9gaZPpdk/",
+      "highlight": false
+    },
+    {
+      "id": "komikal2-2023",
+      "title": "KOMIKAL 2",
+      "venue": "Banjarbaru",
+      "year": "2023",
+      "image": "assets/press/13-komikal2-2023.jpg",
+      "width": 800,
+      "height": 533,
+      "instagramUrl": "https://www.instagram.com/p/CxE3jgJv0dR/",
+      "highlight": false
+    },
+    {
+      "id": "nada-bergembira-2023",
+      "title": "Nada Bergembira Festival",
+      "venue": "Amanah Borneo Park",
+      "year": "2023",
+      "image": "assets/press/14-nada-bergembira-2023.jpg",
+      "width": 660,
+      "height": 372,
+      "instagramUrl": "https://www.instagram.com/p/Cwg8Z4UPIz8/",
+      "highlight": true
+    },
+    {
+      "id": "it-matsuri-2023",
+      "title": "IT Matsuri 2023",
+      "venue": "Banjarmasin",
+      "year": "2023",
+      "image": "assets/press/15-it-matsuri-2023.jpg",
+      "width": 800,
+      "height": 533,
+      "instagramUrl": "https://www.instagram.com/p/Cv55RkNP6Iw/",
+      "highlight": false
+    },
+    {
+      "id": "sonicpop-uniska-2023",
+      "title": "SonicPop x UKM Band Uniska: Youth Star",
+      "venue": "Banjarmasin",
+      "year": "2023",
+      "image": "assets/press/16-sonicpop-uniska-2023.jpg",
+      "width": 799,
+      "height": 532,
+      "instagramUrl": "https://www.instagram.com/p/CvTwV4IPYO_/",
+      "highlight": false
+    },
+    {
+      "id": "akiba-fest-2023",
+      "title": "AKIBA Fest",
+      "venue": "Banjarmasin",
+      "year": "2023",
+      "image": "assets/press/17-akiba-fest-2023.jpg",
+      "width": 800,
+      "height": 800,
+      "instagramUrl": "https://www.instagram.com/p/CuUMj6gvjHL/",
+      "highlight": false
+    },
+    {
+      "id": "momatsu-2023",
+      "title": "Momatsu",
+      "venue": "SMA N 1, Banjarmasin",
+      "year": "2023",
+      "image": "assets/press/18-momatsu-2023.jpg",
+      "width": 800,
+      "height": 533,
+      "instagramUrl": "https://www.instagram.com/p/CrsaimgvzUo/",
+      "highlight": false
+    },
+    {
+      "id": "ngawibuburit-2023",
+      "title": "Nga-WIBU-burit",
+      "venue": "Wetland Square",
+      "year": "2023",
+      "image": "assets/press/19-ngawibuburit-2023.jpg",
+      "width": 800,
+      "height": 533,
+      "instagramUrl": "https://www.instagram.com/p/CrDwxkQvWRJ/",
+      "highlight": false
+    },
+    {
+      "id": "osaka-fest-2023",
+      "title": "O-SAKA Fest",
+      "venue": "Wetland Square, Banjarmasin",
+      "year": "2023",
+      "image": "assets/press/20-osaka-fest-2023.jpg",
+      "width": 800,
+      "height": 533,
+      "instagramUrl": "https://www.instagram.com/p/CpZvcZGv6bV/",
+      "highlight": false
+    },
+    {
+      "id": "rrinet-2023",
+      "title": "RRI.Net Live Tapping",
+      "venue": "Banjarmasin",
+      "year": "2023",
+      "image": "assets/press/21-rrinet-2023.jpg",
+      "width": 799,
+      "height": 449,
+      "instagramUrl": "https://www.instagram.com/p/CpC8lnqPUAx/",
+      "highlight": false
+    }
+  ],
+  "shows": [
+    {
+      "id": "show-37",
+      "date": "9 Nov '25",
+      "year": "2025",
+      "event": "HOLLOWFEST: Pop of View #2",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-36",
+      "date": "27 Sept '25",
+      "year": "2025",
+      "event": "Senyawa Soundscape",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-35",
+      "date": "12 April '25",
+      "year": "2025",
+      "event": "Liburland Festival 2025 Day 1",
+      "location": "Banjarbaru",
+      "featuring": "feat. Rosa Graviela",
+      "upcoming": false
+    },
+    {
+      "id": "show-34",
+      "date": "31 Des '24",
+      "year": "2024",
+      "event": "YTTA Vol. 3",
+      "location": "Banjarmasin",
+      "featuring": "feat. Rosa Graviela, Iwan, dan Qory",
+      "upcoming": false
+    },
+    {
+      "id": "show-33",
+      "date": "Nov '24",
+      "year": "2024",
+      "event": "Come Inside Podcast: Kompas TV",
+      "location": "Banjarmasin",
+      "featuring": "feat. Rosa Graviela",
+      "upcoming": false
+    },
+    {
+      "id": "show-32",
+      "date": "15 Sept '24",
+      "year": "2024",
+      "event": "Jak Japan Matsuri",
+      "location": "Jakarta",
+      "featuring": "feat. Amon",
+      "upcoming": false
+    },
+    {
+      "id": "show-31",
+      "date": "3 Agust '24",
+      "year": "2024",
+      "event": "Showcase Stage: Crossroad",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-30",
+      "date": "18 Mei '24",
+      "year": "2024",
+      "event": "Tales of Smadia",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-29",
+      "date": "12 Mei '24",
+      "year": "2024",
+      "event": "Kyo-To Festival",
+      "location": "Banjarmasin",
+      "featuring": "feat. Audi Bellave",
+      "upcoming": false
+    },
+    {
+      "id": "show-28",
+      "date": "18 Feb '24",
+      "year": "2024",
+      "event": "Fuyu no Yukikaze: Japanese Winter Festival",
+      "location": "Banjarmasin",
+      "featuring": "feat. Aopichan",
+      "upcoming": false
+    },
+    {
+      "id": "show-27",
+      "date": "12 April '25",
+      "year": "2025",
+      "event": "Mitra Suzuki: Suzuki Day",
+      "location": "Banjarmasin",
+      "featuring": "feat. Audibellave x Magusdanev",
+      "upcoming": false
+    },
+    {
+      "id": "show-26",
+      "date": "31 Des '23",
+      "year": "2023",
+      "event": "YTTA Vol. 2",
+      "location": "Banjarmasin",
+      "featuring": "feat. Achan, Rosa Graviela, Iwan & Qory",
+      "upcoming": false
+    },
+    {
+      "id": "show-25",
+      "date": "23 Des '23",
+      "year": "2023",
+      "event": "Cempaka Street Market Vol. 3",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-24",
+      "date": "17 Des '23",
+      "year": "2023",
+      "event": "R.O.D 2023: Across the Dream Sky",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-23",
+      "date": "10 Des '23",
+      "year": "2023",
+      "event": "Gadgetmart: Japanese Festival",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-22",
+      "date": "19 Nov '23",
+      "year": "2023",
+      "event": "DreamFest: Amanah Borneo Park",
+      "location": "Banjarbaru",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-21",
+      "date": "18 Nov '23",
+      "year": "2023",
+      "event": "Poros Kalimantan Live Session",
+      "location": "Banjarbaru",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-20",
+      "date": "5 Nov '23",
+      "year": "2023",
+      "event": "Banjarmasin Matsuri 2023",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-19",
+      "date": "15 Okt '23",
+      "year": "2023",
+      "event": "Kyou no Matsuri",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-18",
+      "date": "17 Sept '23",
+      "year": "2023",
+      "event": "Oretachi x Rising Star",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-17",
+      "date": "10 Sept '23",
+      "year": "2023",
+      "event": "KOMIKAL 2",
+      "location": "Banjarbaru",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-16",
+      "date": "27 Agust '23",
+      "year": "2023",
+      "event": "Nada Bergembira, Day 2",
+      "location": "Banjarbaru",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-15",
+      "date": "12 Agust '23",
+      "year": "2023",
+      "event": "IT Matsuri 2023",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-14",
+      "date": "6 Agust '23",
+      "year": "2023",
+      "event": "Mitra Suzuki: Funtastic Land Part 2",
+      "location": "Banjarbaru",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-13",
+      "date": "29 Juli '23",
+      "year": "2023",
+      "event": "SonicPop x UKM Band Uniska: Youth Star",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-12",
+      "date": "2 Juli '23",
+      "year": "2023",
+      "event": "AKIBA Fest",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-11",
+      "date": "21 Mei '23",
+      "year": "2023",
+      "event": "Bilik Bersenyawa: Sisi Musisi #6",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-10",
+      "date": "14 Mei '23",
+      "year": "2023",
+      "event": "Hajimari no Matsuri",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-09",
+      "date": "30 April '23",
+      "year": "2023",
+      "event": "Momiji Matsuri 10",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-08",
+      "date": "9 April '23",
+      "year": "2023",
+      "event": "Nga-WIBU-burit",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-07",
+      "date": "4 Maret '23",
+      "year": "2023",
+      "event": "O-SAKA Fest",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-06",
+      "date": "Feb '23",
+      "year": "2023",
+      "event": "RRI.Net Live Tapping",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-05",
+      "date": "8 Jan '23",
+      "year": "2023",
+      "event": "Hanabi Matsuri",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-04",
+      "date": "27 Nov '22",
+      "year": "2022",
+      "event": "Banjarmasin Post: MILLENIALS FEST",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-03",
+      "date": "5 Nov '22",
+      "year": "2022",
+      "event": "Duta Mall: Live on Mall",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-02",
+      "date": "1 Okt '22",
+      "year": "2022",
+      "event": "Duta Mall: Local Pride",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    },
+    {
+      "id": "show-01",
+      "date": "28 Sept '22",
+      "year": "2022",
+      "event": "Sasirangan Festival",
+      "location": "Banjarmasin",
+      "featuring": "",
+      "upcoming": false
+    }
+  ],
+  "videos": [
+    {
+      "id": "liburland-2025-clip",
+      "title": "Eve's Lily feat. Rosa Graviela @ Liburland Festival 2025",
+      "venue": "Amanah Borneo Park",
+      "year": "2025",
+      "youtubeId": "tCSZ4k5TXv4",
+      "youtubeUrl": "https://youtu.be/tCSZ4k5TXv4?si=Sw_pH-I1OvnKWggQ",
+      "thumbnail": "assets/videos/liburland-2025.jpg",
+      "thumbWidth": 854,
+      "thumbHeight": 480,
+      "featured": true
+    },
+    {
+      "id": "janji-crossroad-2024",
+      "title": "Eve's Lily - Janji @ Showcase Stage: Crossroad",
+      "venue": "Banjarmasin",
+      "year": "2024",
+      "youtubeId": "EdP4hRUNUoM",
+      "youtubeUrl": "https://youtu.be/EdP4hRUNUoM?si=jqHUW75kPdU5hmUl",
+      "thumbnail": "assets/videos/janji-crossroad-2024.jpg",
+      "thumbWidth": 854,
+      "thumbHeight": 480,
+      "featured": false
+    },
+    {
+      "id": "nada-bergembira-2023",
+      "title": "Eve's Lily @ Nada Bergembira, Amanah Borneo Park",
+      "venue": "Amanah Borneo Park",
+      "year": "2023",
+      "youtubeId": "KwSK4_v54ZQ",
+      "youtubeUrl": "https://youtu.be/KwSK4_v54ZQ?si=_nsplnCimlQSfcXX",
+      "thumbnail": "assets/videos/nada-bergembira-2023.jpg",
+      "thumbWidth": 854,
+      "thumbHeight": 480,
+      "featured": false
+    }
+  ],
+  "contact": {
+    "picRole": "PIC & Booking",
+    "picName": "Reza F. Shaoran",
+    "whatsappDisplay": "0851-5549-4199",
+    "whatsappNumber": "6285155494199",
+    "email": "eveslily19@gmail.com",
+    "backdrop": "assets/brand/contact-backdrop.jpg",
+    "backdropWidth": 1599,
+    "backdropHeight": 1066,
+    "backdropAlt": "Personel Eve's Lily duduk membelakangi kamera mengenakan kaus berlambang bunga lily",
+    "socials": [
+      {
+        "platform": "Instagram",
+        "handle": "@eveslily.official",
+        "url": "https://www.instagram.com/eveslily.official/"
+      },
+      {
+        "platform": "YouTube",
+        "handle": "@eveslily",
+        "url": "https://www.youtube.com/@eveslily"
+      },
+      {
+        "platform": "Facebook",
+        "handle": "Eve's Lily",
+        "url": "https://www.facebook.com/profile.php?id=100085370835927"
+      }
+    ]
+  }
+}
