@@ -235,93 +235,136 @@ function renderDiscography(data) {
       return;
     }
 
-    gridEl.innerHTML = filtered
-      .map((item, idx) => {
-        const isEp = item.type === 'EP' || (Array.isArray(item.tracklist) && item.tracklist.length > 0);
-        const isUpcoming = Boolean(item.upcoming);
-        const isTrilogyStart =
-          idx > 0 &&
-          (item.category || '').toLowerCase() === 'trilogi' &&
-          (filtered[idx - 1]?.category || '').toLowerCase() !== 'trilogi';
-        const tracks = Array.isArray(item.tracklist) ? item.tracklist : [];
-        const tracklistHtml = tracks.length
-          ? `<ol class="tracklist">${tracks
-              .map(
-                (t, idx) =>
-                  `<li class="tracklist__item"><span class="tracklist__num">${String(idx + 1).padStart(2, '0')}</span><span>${escapeHtml(t)}</span></li>`
-              )
-              .join('')}</ol>`
-          : '';
+    const rows = [];
+    let currentRow = [];
+    filtered.forEach((item, idx) => {
+      const isEp = item.type === 'EP' || (Array.isArray(item.tracklist) && item.tracklist.length > 0);
+      const isTrilogyStart =
+        idx > 0 &&
+        (item.category || '').toLowerCase() === 'trilogi' &&
+        (filtered[idx - 1]?.category || '').toLowerCase() !== 'trilogi';
 
-        const hasAudio = Boolean(item.audioPreviewUrl);
-        let actionsHtml = '';
-
-        if (isUpcoming) {
-          actionsHtml = `<span class="release-card__coming-note">Rilisan Mendatang</span>`;
-        } else if (isEp) {
-          actionsHtml = `
-            <span class="ep-listen-label">Dengarkan Mini Album</span>
-            ${renderDspIconButtons(item.title, item, dsp, 'dark')}
-            ${hasAudio ? `<button type="button" class="btn btn--primary btn--sm" data-play-audio="${escapeHtml(item.id)}">Pratinjau</button>` : ''}
-          `;
-        } else {
-          actionsHtml = renderDspIconButtons(item.title, item, dsp, 'light');
-          if (hasAudio) {
-            actionsHtml += `<button type="button" class="btn btn--solid-light btn--sm" data-play-audio="${escapeHtml(item.id)}">Pratinjau</button>`;
-          }
+      if (isEp) {
+        if (currentRow.length) {
+          rows.push(currentRow);
+          currentRow = [];
         }
+        rows.push([item]);
+        return;
+      }
 
-        const cardClasses = [
-          'release-card',
-          isEp ? 'release-card--ep' : '',
-          isUpcoming ? 'release-card--upcoming' : '',
-          isTrilogyStart ? 'release-card--row-start' : ''
-        ]
-          .filter(Boolean)
-          .join(' ');
+      if (isTrilogyStart && currentRow.length) {
+        rows.push(currentRow);
+        currentRow = [];
+      }
 
-        const metaHeaderHtml = isEp
-          ? `<div class="ep-head">
-              <span class="release-card__type">Mini Album / ${escapeHtml(item.type)} (${escapeHtml(item.year)})</span>
-              ${tracks.length ? `<span class="ep-count">${tracks.length} Lagu</span>` : ''}
-            </div>`
-          : `<span class="release-card__type ${isUpcoming ? 'release-card__type--upcoming' : ''}">
-              ${isUpcoming ? `${escapeHtml(item.type)} / Rilisan Mendatang` : `${escapeHtml(item.type)} (${escapeHtml(item.year)})`}
-            </span>`;
+      currentRow.push(item);
+      if (currentRow.length === 3) {
+        rows.push(currentRow);
+        currentRow = [];
+      }
+    });
+    if (currentRow.length) {
+      rows.push(currentRow);
+    }
 
-        const subtitleText = isEp
-          ? [item.subtitle, item.releaseDate].filter(Boolean).join(' · ')
-          : item.subtitle && !isUpcoming
-            ? item.subtitle
+    gridEl.innerHTML = rows
+      .flatMap((row) =>
+        row.map((item, idxInRow) => {
+          const isEp = item.type === 'EP' || (Array.isArray(item.tracklist) && item.tracklist.length > 0);
+          const isUpcoming = Boolean(item.upcoming);
+          const tracks = Array.isArray(item.tracklist) ? item.tracklist : [];
+          const trackRows = Math.ceil(tracks.length / 2);
+          const tracklistHtml = tracks.length
+            ? `<ol class="tracklist" style="--track-rows:${trackRows}">${tracks
+                .map(
+                  (t, trackIdx) =>
+                    `<li class="tracklist__item"><span class="tracklist__num">${String(trackIdx + 1).padStart(2, '0')}</span><span>${escapeHtml(t)}</span></li>`
+                )
+                .join('')}</ol>`
             : '';
 
-        return `
-          <article class="${cardClasses}">
-            <div class="release-card__media">
-              <img
-                class="release-card__cover ${item.blurredCover ? 'release-card__cover--blur' : ''}"
-                src="${escapeHtml(safeUrl(item.cover))}"
-                alt="${isUpcoming ? `Teaser sampul ${escapeHtml(item.title)}` : `Sampul ${escapeHtml(item.title)}`}"
-                width="${Number(item.coverWidth) || 480}"
-                height="${Number(item.coverHeight) || 480}"
-                loading="lazy"
-              />
-              ${
-                isUpcoming
-                  ? `<div class="release-card__upcoming-overlay"><span class="release-card__upcoming-tag">Rilisan Mendatang</span></div>`
-                  : ''
-              }
-            </div>
-            <div class="release-card__body">
-              ${metaHeaderHtml}
-              <h3 class="release-card__title">${escapeHtml(item.title)}</h3>
-              ${subtitleText ? `<p class="release-card__sub">${escapeHtml(subtitleText)}</p>` : ''}
-              ${tracklistHtml}
-              <div class="release-card__actions">${actionsHtml}</div>
-            </div>
-          </article>
-        `;
-      })
+          let placementClass = '';
+          if (!isEp) {
+            if (row.length === 1) {
+              placementClass = 'release-card--center-1';
+            } else if (row.length === 2) {
+              placementClass = idxInRow === 0 ? 'release-card--center-2-a' : 'release-card--center-2-b';
+            } else if (idxInRow === 0) {
+              placementClass = 'release-card--row-start';
+            }
+          }
+
+          const hasAudio = Boolean(item.audioPreviewUrl);
+          let actionsHtml = '';
+
+          if (isUpcoming) {
+            actionsHtml = `<span class="release-card__coming-note">Rilisan Mendatang</span>`;
+          } else if (isEp) {
+            actionsHtml = `
+              <span class="ep-listen-label">Dengarkan Mini Album</span>
+              ${renderDspIconButtons(item.title, item, dsp, 'dark')}
+              ${hasAudio ? `<button type="button" class="btn btn--primary btn--sm" data-play-audio="${escapeHtml(item.id)}">Pratinjau</button>` : ''}
+            `;
+          } else {
+            actionsHtml = renderDspIconButtons(item.title, item, dsp, 'light');
+            if (hasAudio) {
+              actionsHtml += `<button type="button" class="btn btn--solid-light btn--sm" data-play-audio="${escapeHtml(item.id)}">Pratinjau</button>`;
+            }
+          }
+
+          const cardClasses = [
+            'release-card',
+            isEp ? 'release-card--ep' : '',
+            isUpcoming ? 'release-card--upcoming' : '',
+            placementClass
+          ]
+            .filter(Boolean)
+            .join(' ');
+
+          const metaHeaderHtml = isEp
+            ? `<div class="ep-head">
+                <span class="release-card__type">Mini Album / ${escapeHtml(item.type)} (${escapeHtml(item.year)})</span>
+                ${tracks.length ? `<span class="ep-count">${tracks.length} Lagu</span>` : ''}
+              </div>`
+            : `<span class="release-card__type ${isUpcoming ? 'release-card__type--upcoming' : ''}">
+                ${isUpcoming ? `${escapeHtml(item.type)} / Rilisan Mendatang` : `${escapeHtml(item.type)} (${escapeHtml(item.year)})`}
+              </span>`;
+
+          const subtitleText = isEp
+            ? [item.subtitle, item.releaseDate].filter(Boolean).join(' · ')
+            : item.subtitle && !isUpcoming
+              ? item.subtitle
+              : '';
+
+          return `
+            <article class="${cardClasses}">
+              <div class="release-card__media">
+                <img
+                  class="release-card__cover ${item.blurredCover ? 'release-card__cover--blur' : ''}"
+                  src="${escapeHtml(safeUrl(item.cover))}"
+                  alt="${isUpcoming ? `Teaser sampul ${escapeHtml(item.title)}` : `Sampul ${escapeHtml(item.title)}`}"
+                  width="${Number(item.coverWidth) || 480}"
+                  height="${Number(item.coverHeight) || 480}"
+                  loading="lazy"
+                />
+                ${
+                  isUpcoming
+                    ? `<div class="release-card__upcoming-overlay"><span class="release-card__upcoming-tag">Rilisan Mendatang</span></div>`
+                    : ''
+                }
+              </div>
+              <div class="release-card__body">
+                ${metaHeaderHtml}
+                <h3 class="release-card__title">${escapeHtml(item.title)}</h3>
+                ${subtitleText ? `<p class="release-card__sub">${escapeHtml(subtitleText)}</p>` : ''}
+                ${tracklistHtml}
+                <div class="release-card__actions">${actionsHtml}</div>
+              </div>
+            </article>
+          `;
+        })
+      )
       .join('');
 
     gridEl.querySelectorAll('[data-play-audio]').forEach((btn) => {
@@ -338,13 +381,9 @@ function renderDiscography(data) {
 
 function renderPressHighlights(data) {
   const root = document.getElementById('press-spotlight');
-  const countBtn = document.getElementById('press-all-btn');
   if (!root) return;
 
   const allPhotos = Array.isArray(data.pressPhotos) ? data.pressPhotos : [];
-  if (countBtn && allPhotos.length) {
-    countBtn.textContent = `Lihat Semua ${allPhotos.length} Foto Panggung`;
-  }
 
   const highlights = allPhotos.filter((p) => p.highlight).slice(0, 3);
   const items = highlights.length ? highlights : allPhotos.slice(0, 3);
@@ -399,13 +438,9 @@ function renderPressHighlights(data) {
 
 function renderShowsPreview(data) {
   const root = document.getElementById('shows-preview');
-  const ctaBtn = document.getElementById('shows-all-btn');
   if (!root) return;
 
   const shows = Array.isArray(data.shows) ? data.shows : [];
-  if (ctaBtn && shows.length) {
-    ctaBtn.textContent = `Lihat Semua ${shows.length} Jadwal & Arsip`;
-  }
 
   if (!shows.length) {
     root.innerHTML = `<div class="state-box"><p class="state-box__title">Belum ada jadwal panggung tercatat</p></div>`;
