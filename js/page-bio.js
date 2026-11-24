@@ -25,6 +25,7 @@ async function boot() {
     const hero = data.hero || {};
     const highlights = Array.isArray(bio.highlights) ? bio.highlights : [];
     const paragraphs = Array.isArray(bio.paragraphs) ? bio.paragraphs : [];
+    const headline = (bio.headline || '').trim();
 
     bioRoot.innerHTML = `
       <div class="profile-grid">
@@ -53,7 +54,7 @@ async function boot() {
           }
         </div>
         <div class="profile-copy">
-          <h2 class="profile-copy__heading">${escapeHtml(bio.headline || "Eve's Lily")}</h2>
+          ${headline ? `<h2 class="profile-copy__heading">${escapeHtml(headline)}</h2>` : ''}
           <div class="prose">
             ${paragraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join('')}
           </div>

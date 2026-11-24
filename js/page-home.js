@@ -88,6 +88,7 @@ function renderProfilePreview(data) {
     .join('');
 
   const proseHtml = paragraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join('');
+  const headline = (bio.headline || '').trim();
 
   root.innerHTML = `
     <div class="profile-grid">
@@ -105,7 +106,7 @@ function renderProfilePreview(data) {
       </div>
 
       <div class="profile-copy">
-        <h2 class="profile-copy__heading">${escapeHtml(bio.headline || "Eve's Lily")}</h2>
+        ${headline ? `<h2 class="profile-copy__heading">${escapeHtml(headline)}</h2>` : ''}
         <div class="prose">${proseHtml}</div>
         <div class="profile-copy__cta">
           <a href="./biography.html" class="btn btn--primary">Baca Biografi &amp; Personel</a>

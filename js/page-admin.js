@@ -451,8 +451,8 @@ function renderBiographySection(workspace) {
 
       <div class="field-grid">
         <div class="field field--full">
-          <label class="field__label" for="bio-headline">Judul Profil</label>
-          <input id="bio-headline" class="field__input" type="text" value="${escapeHtml(bio.headline || '')}" placeholder="Eve's Lily: Langit pun Bernyanyi">
+          <label class="field__label" for="bio-headline">Judul Profil (Opsional)</label>
+          <input id="bio-headline" class="field__input" type="text" value="${escapeHtml(bio.headline || '')}" placeholder="Kosongkan jika tidak ingin menampilkan judul">
         </div>
 
         ${renderImageControl({ id: 'bio-photo', label: 'Foto Band di Bagian Biografi', value: bio.bandPhoto })}
