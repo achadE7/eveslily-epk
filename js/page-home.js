@@ -236,9 +236,13 @@ function renderDiscography(data) {
     }
 
     gridEl.innerHTML = filtered
-      .map((item) => {
+      .map((item, idx) => {
         const isEp = item.type === 'EP' || (Array.isArray(item.tracklist) && item.tracklist.length > 0);
         const isUpcoming = Boolean(item.upcoming);
+        const isTrilogyStart =
+          idx > 0 &&
+          (item.category || '').toLowerCase() === 'trilogi' &&
+          (filtered[idx - 1]?.category || '').toLowerCase() !== 'trilogi';
         const tracks = Array.isArray(item.tracklist) ? item.tracklist : [];
         const tracklistHtml = tracks.length
           ? `<ol class="tracklist">${tracks
@@ -270,7 +274,8 @@ function renderDiscography(data) {
         const cardClasses = [
           'release-card',
           isEp ? 'release-card--ep' : '',
-          isUpcoming ? 'release-card--upcoming' : ''
+          isUpcoming ? 'release-card--upcoming' : '',
+          isTrilogyStart ? 'release-card--row-start' : ''
         ]
           .filter(Boolean)
           .join(' ');
