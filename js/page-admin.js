@@ -43,7 +43,7 @@ const SECTION_LABELS = {
   shows: 'Jadwal Panggung',
   videos: 'Video YouTube',
   contact: 'Kontak & DSP',
-  github: 'Keamanan & GitHub',
+  github: 'Keamanan & Sinkronisasi',
   backup: 'Impor / Reset JSON'
 };
 
@@ -321,7 +321,7 @@ function renderImageControl({ id, label, value, hint }) {
               <span>Pilih File Gambar</span>
               <input type="file" accept="image/jpeg,image/png,image/webp" data-file-for="${escapeHtml(id)}">
             </label>
-            <span class="field__hint">${escapeHtml(hint || (isGhConfigured() ? 'Foto otomatis dikompres lalu langsung diunggah ke assets/uploads/ di GitHub.' : 'Foto otomatis dikompres agar ringan (preview lokal atau upload ke GitHub jika terhubung).'))}</span>
+            ${hint ? `<span class="field__hint">${escapeHtml(hint)}</span>` : ''}
           </div>
         </div>
       </div>
@@ -370,7 +370,6 @@ function renderHeroSection(workspace) {
       <div class="admin-panel__head">
         <div>
           <h2 id="panel-hero-title" class="admin-panel__title">Hero &amp; Identitas</h2>
-          <p class="admin-panel__desc">Atur informasi dasar band, foto utama Hero, dan kutipan lirik pembuka. Untuk menambahkan single mendatang (seperti "Perayaan Bintang Jatuh"), kelola langsung di bagian Discography.</p>
         </div>
       </div>
 
@@ -439,7 +438,6 @@ function renderBiographySection(workspace) {
       <div class="admin-panel__head">
         <div>
           <h2 id="panel-bio-title" class="admin-panel__title">Biografi &amp; Filosofi</h2>
-          <p class="admin-panel__desc">Satu perubahan di sini langsung tersinkron ke halaman Home dan Biography. Pisahkan antar paragraf dengan satu baris kosong.</p>
         </div>
       </div>
 
@@ -471,7 +469,7 @@ function renderBiographySection(workspace) {
       <div>
         <div class="item-card__head" style="margin-bottom:0.85rem">
           <h3 class="item-card__title">Ringkasan Fakta Band</h3>
-          <button type="button" id="add-highlight-btn" class="btn btn--outline-dark btn--sm">+ Tambah Fakta</button>
+          <button type="button" id="add-highlight-btn" class="btn btn--outline-dark btn--sm">Tambah Fakta</button>
         </div>
         <div class="item-stack">
           ${highlights
@@ -558,9 +556,8 @@ function renderMembersSection(workspace) {
       <div class="admin-panel__head">
         <div>
           <h2 id="panel-members-title" class="admin-panel__title">Personel (${members.length})</h2>
-          <p class="admin-panel__desc">Kelola formasi personel dan posisi crop fokus foto (misalnya <code>50% 56%</code> untuk foto vertikal agar wajah dan instrumen pas di bingkai).</p>
         </div>
-        <button type="button" id="add-member-btn" class="btn btn--primary btn--sm">+ Tambah Personel</button>
+        <button type="button" id="add-member-btn" class="btn btn--primary btn--sm">Tambah Personel</button>
       </div>
 
       <div class="item-stack">
@@ -666,9 +663,8 @@ function renderDiscographySection(workspace) {
       <div class="admin-panel__head">
         <div>
           <h2 id="panel-discog-title" class="admin-panel__title">Discography (${items.length})</h2>
-          <p class="admin-panel__desc">Urutkan rilis terbaru di paling atas. Kotak "Rilisan Terbaru" di halaman Home otomatis mengikuti rilis teratas yang bukan Rilisan Mendatang.</p>
         </div>
-        <button type="button" id="add-release-btn" class="btn btn--primary btn--sm">+ Tambah Rilis di Atas</button>
+        <button type="button" id="add-release-btn" class="btn btn--primary btn--sm">Tambah Rilisan</button>
       </div>
 
       <div class="item-stack">
@@ -842,9 +838,8 @@ function renderPressSection(workspace) {
       <div class="admin-panel__head">
         <div>
           <h2 id="panel-press-title" class="admin-panel__title">Press Photos (${photos.length})</h2>
-          <p class="admin-panel__desc">Tambahkan foto panggung baru dan centang "Tampilkan di Sorotan Home" pada 3 foto terbaik untuk halaman depan.</p>
         </div>
-        <button type="button" id="add-press-btn" class="btn btn--primary btn--sm">+ Tambah Foto Panggung</button>
+        <button type="button" id="add-press-btn" class="btn btn--primary btn--sm">Tambah Foto</button>
       </div>
 
       <div class="item-stack">
@@ -968,9 +963,8 @@ function renderShowsSection(workspace) {
       <div class="admin-panel__head">
         <div>
           <h2 id="panel-shows-title" class="admin-panel__title">Jadwal Panggung (${shows.length})</h2>
-          <p class="admin-panel__desc">Tambahkan jadwal panggung baru di urutan paling atas. Centang "Akan Datang" agar otomatis muncul di bagian teratas Home dan Schedule.</p>
         </div>
-        <button type="button" id="add-show-btn" class="btn btn--primary btn--sm">+ Tambah Jadwal Baru</button>
+        <button type="button" id="add-show-btn" class="btn btn--primary btn--sm">Tambah Jadwal</button>
       </div>
 
       <div class="field">
@@ -1108,9 +1102,8 @@ function renderVideosSection(workspace) {
       <div class="admin-panel__head">
         <div>
           <h2 id="panel-videos-title" class="admin-panel__title">Video YouTube (${videos.length})</h2>
-          <p class="admin-panel__desc">Tempel link YouTube biasa. ID video otomatis terbaca untuk pemutar modal di EPK.</p>
         </div>
-        <button type="button" id="add-video-btn" class="btn btn--primary btn--sm">+ Tambah Video</button>
+        <button type="button" id="add-video-btn" class="btn btn--primary btn--sm">Tambah Video</button>
       </div>
 
       <div class="item-stack">
@@ -1249,7 +1242,6 @@ function renderContactSectionAdmin(workspace) {
       <div class="admin-panel__head">
         <div>
           <h2 id="panel-contact-title" class="admin-panel__title">Kontak Booking, DSP &amp; Media Sosial</h2>
-          <p class="admin-panel__desc">Semua tombol WhatsApp, Email, Salin Kontak, dan tautan default Spotify, Apple Music, serta YouTube Music mengambil datanya dari bagian ini.</p>
         </div>
       </div>
 
@@ -1294,7 +1286,7 @@ function renderContactSectionAdmin(workspace) {
       <div>
         <div class="item-card__head" style="margin-bottom:0.85rem">
           <h3 class="item-card__title">Tautan Media Sosial</h3>
-          <button type="button" id="add-social-btn" class="btn btn--outline-dark btn--sm">+ Tambah Sosial Media</button>
+          <button type="button" id="add-social-btn" class="btn btn--outline-dark btn--sm">Tambah Sosial Media</button>
         </div>
         <div class="item-stack">
           ${(c.socials || [])
@@ -1386,8 +1378,7 @@ function renderGitHubSection(workspace) {
     <section class="admin-panel" aria-labelledby="panel-gh-title">
       <div class="admin-panel__head">
         <div>
-          <h2 id="panel-gh-title" class="admin-panel__title">Keamanan &amp; Sinkronisasi GitHub</h2>
-          <p class="admin-panel__desc">Editor terkunci ke repository <strong>${escapeHtml(repoFull)}</strong> dan diverifikasi langsung oleh server GitHub. Token tidak pernah disimpan polos dan tidak pernah ditampilkan kembali di layar.</p>
+          <h2 id="panel-gh-title" class="admin-panel__title">Keamanan &amp; Sinkronisasi</h2>
         </div>
       </div>
 
@@ -1437,12 +1428,6 @@ function renderGitHubSection(workspace) {
           <button type="button" id="gh-wipe-vault-btn" class="btn btn--danger btn--sm">Hapus Vault &amp; Logout Penuh</button>
         </div>
       </div>
-
-      <ol class="guide-steps">
-        <li>Aktifkan <strong>Two-Factor Authentication (2FA)</strong> pada akun GitHub kamu (Settings &gt; Password and authentication).</li>
-        <li>Gunakan <strong>Fine-Grained Personal Access Token</strong> dengan masa berlaku 30 sampai 90 hari, hanya untuk <strong>Only select repositories: ${escapeHtml(repoFull)}</strong> dan izin minimal <strong>Contents: Read and write</strong>.</li>
-        <li>Jika token dicurigai bocor, segera klik <strong>Revoke</strong> di GitHub Settings; gerbang admin ini akan otomatis menolak token lama saat verifikasi server.</li>
-      </ol>
     </section>
   `;
 
@@ -1518,7 +1503,6 @@ function renderBackupSection(workspace) {
       <div class="admin-panel__head">
         <div>
           <h2 id="panel-backup-title" class="admin-panel__title">Impor, Export &amp; Reset Data JSON</h2>
-          <p class="admin-panel__desc">Kalau sedang tidak ingin memakai token GitHub, kamu bisa mengunduh file <code>epk.json</code> dari sini lalu mengunggahnya manual ke folder <code>data/</code> di GitHub.</p>
         </div>
       </div>
 
