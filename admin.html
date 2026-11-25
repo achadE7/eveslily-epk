@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Editor EPK | Eve's Lily Content Studio</title>
-  <meta name="description" content="Editor visual bawaan untuk mengelola profil, discography, foto panggung, jadwal, video, personel, dan sinkronisasi GitHub EPK Eve's Lily.">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <title>Akses Terkunci | Editor EPK Eve's Lily</title>
+  <meta name="description" content="Gerbang autentikasi terenkripsi untuk Editor EPK Eve's Lily.">
   <link rel="icon" type="image/png" href="./assets/brand/lily-icon-only.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,111 +16,252 @@
   <link rel="stylesheet" href="./css/main.css">
   <link rel="stylesheet" href="./css/admin.css">
 </head>
-<body class="admin-body">
-  <a href="#admin-workspace" class="skip-link">Lewati ke area editor</a>
+<body class="admin-body" data-locked="true">
+  <a href="#admin-gate" class="skip-link">Lewati ke gerbang autentikasi</a>
 
-  <header class="admin-topbar">
-    <div class="admin-topbar__inner">
-      <div class="admin-topbar__left">
-        <a href="./index.html" class="brand-link" aria-label="Kembali ke halaman EPK Eve's Lily">
-          <img src="./assets/brand/lily-icon-only.png" alt="" aria-hidden="true" class="brand-link__icon" width="28" height="27">
-          <h1 class="admin-topbar__title">Editor EPK</h1>
-        </a>
-        <span id="admin-status" class="admin-status" data-state="ok" role="status" aria-live="polite">
-          Memuat data...
-        </span>
-      </div>
-
-      <div class="admin-topbar__actions">
-        <a href="./index.html" id="btn-preview-epk" class="btn btn--outline-dark btn--sm">Preview EPK</a>
-        <button type="button" id="btn-download-json" class="btn btn--outline-dark btn--sm">Download epk.json</button>
-        <button type="button" id="btn-quick-publish" class="btn btn--primary btn--sm">Simpan ke GitHub</button>
-      </div>
-    </div>
-  </header>
-
-  <div class="admin-shell">
-    <div>
-      <button
-        type="button"
-        id="admin-nav-toggle"
-        class="btn btn--outline-dark admin-nav-mobile-trigger"
-        aria-expanded="false"
-        aria-controls="admin-sidebar"
-      >
-        <span id="admin-mobile-active-label">Bagian: Hero &amp; Identitas</span>
-        <span>Pilih Bagian</span>
-      </button>
-
-      <aside id="admin-sidebar" class="admin-sidebar" data-open="false" aria-label="Navigasi bagian editor EPK">
+  <!-- Zero-Trust Authentication Gate (only visible surface while locked) -->
+  <main id="admin-gate" class="auth-gate" aria-labelledby="auth-gate-title">
+    <section class="auth-card">
+      <div class="auth-card__brand">
+        <img src="./assets/brand/lily-icon-only.png" alt="" aria-hidden="true" width="38" height="36">
         <div>
-          <p class="admin-nav-group__label">Konten EPK</p>
-          <div class="admin-nav-list" role="tablist" aria-orientation="vertical">
-            <button type="button" class="admin-nav-btn" data-section="hero" aria-current="true">
-              <span>Hero &amp; Identitas</span>
-            </button>
-            <button type="button" class="admin-nav-btn" data-section="biography">
-              <span>Biografi &amp; Filosofi</span>
-            </button>
-            <button type="button" class="admin-nav-btn" data-section="members">
-              <span>Personel</span>
-              <span class="admin-nav-btn__count" data-count="members">0</span>
-            </button>
-            <button type="button" class="admin-nav-btn" data-section="discography">
-              <span>Discography</span>
-              <span class="admin-nav-btn__count" data-count="discography">0</span>
-            </button>
-            <button type="button" class="admin-nav-btn" data-section="press">
-              <span>Press Photos</span>
-              <span class="admin-nav-btn__count" data-count="press">0</span>
-            </button>
-            <button type="button" class="admin-nav-btn" data-section="shows">
-              <span>Jadwal Panggung</span>
-              <span class="admin-nav-btn__count" data-count="shows">0</span>
-            </button>
-            <button type="button" class="admin-nav-btn" data-section="videos">
-              <span>Video YouTube</span>
-              <span class="admin-nav-btn__count" data-count="videos">0</span>
-            </button>
-            <button type="button" class="admin-nav-btn" data-section="contact">
-              <span>Kontak &amp; DSP</span>
-            </button>
+          <p class="auth-card__eyebrow">Zero-Trust Admin Gate</p>
+          <h1 id="auth-gate-title" class="auth-card__title">Editor EPK Eve's Lily</h1>
+        </div>
+      </div>
+
+      <div class="auth-target-pill" aria-label="Repository target terkunci">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <rect x="4" y="11" width="16" height="10" rx="2"/>
+          <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+        </svg>
+        <span>Terkunci khusus untuk <strong>achadE7/eveslily-epk</strong></span>
+      </div>
+
+      <div id="auth-feedback" class="feedback-box" hidden role="alert" aria-live="assertive"></div>
+
+      <!-- Mode A: Unlock existing AES-256-GCM local vault -->
+      <form id="auth-unlock-form" class="auth-form" hidden novalidate>
+        <p class="auth-card__desc">
+          Vault token terenkripsi <strong>AES-256-GCM</strong> ditemukan di browser ini. Masukkan Passphrase Lokal untuk membuka kunci dan memverifikasi izin tulis ke server GitHub.
+        </p>
+
+        <div class="field">
+          <label class="field__label" for="vault-passphrase">Passphrase / PIN Lokal</label>
+          <input
+            id="vault-passphrase"
+            class="field__input"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Masukkan passphrase lokal kamu"
+            required
+          >
+          <p id="vault-attempts-hint" class="field__hint">Vault akan otomatis terhapus setelah 5 kali percobaan salah.</p>
+        </div>
+
+        <button type="submit" id="btn-vault-unlock" class="btn btn--primary auth-submit-btn">
+          Buka Kunci &amp; Verifikasi ke GitHub
+        </button>
+
+        <div class="auth-secondary-actions">
+          <button type="button" id="btn-switch-to-token" class="btn btn--outline-dark btn--sm">
+            Masuk dengan Token Baru
+          </button>
+          <button type="button" id="btn-wipe-vault-gate" class="btn btn--danger btn--sm">
+            Hapus Vault di Browser Ini
+          </button>
+        </div>
+      </form>
+
+      <!-- Mode B: First-time / New-device GitHub Fine-Grained PAT Login -->
+      <form id="auth-token-form" class="auth-form" novalidate>
+        <p class="auth-card__desc">
+          Akses editor dikunci penuh. Masuk menggunakan <strong>Fine-Grained Personal Access Token</strong> milik repository <code>achadE7/eveslily-epk</code> dengan izin <strong>Contents: Read and write</strong>.
+        </p>
+
+        <div class="field">
+          <label class="field__label" for="login-gh-token">GitHub Fine-Grained Token</label>
+          <input
+            id="login-gh-token"
+            class="field__input"
+            type="password"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="github_pat_..."
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="login-gh-branch">Branch Target</label>
+          <input
+            id="login-gh-branch"
+            class="field__input"
+            type="text"
+            value="main"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="main"
+          >
+        </div>
+
+        <div class="field">
+          <label class="field__checkbox-row" for="login-save-vault">
+            <input id="login-save-vault" type="checkbox" checked>
+            <span>Simpan token terenkripsi (AES-256-GCM) di browser ini</span>
+          </label>
+          <p class="field__hint">Lepas centang jika memakai laptop/HP pinjaman (mode sesi sementara di RAM saja, hilang otomatis saat tab ditutup).</p>
+        </div>
+
+        <div id="login-vault-fields" class="auth-vault-fields">
+          <div class="field">
+            <label class="field__label" for="login-passphrase">Buat Passphrase / PIN Lokal (min. 8 karakter)</label>
+            <input
+              id="login-passphrase"
+              class="field__input"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+              placeholder="Minimal 8 karakter rahasia"
+            >
+          </div>
+          <div class="field">
+            <label class="field__label" for="login-passphrase-confirm">Konfirmasi Passphrase Lokal</label>
+            <input
+              id="login-passphrase-confirm"
+              class="field__input"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+              placeholder="Ulangi passphrase lokal"
+            >
           </div>
         </div>
 
-        <div>
-          <p class="admin-nav-group__label">Publikasi &amp; Cadangan</p>
-          <div class="admin-nav-list">
-            <button type="button" class="admin-nav-btn" data-section="github">
-              <span>Sinkronisasi GitHub</span>
-            </button>
-            <button type="button" class="admin-nav-btn" data-section="backup">
-              <span>Impor / Reset JSON</span>
-            </button>
-          </div>
+        <button type="submit" id="btn-token-login" class="btn btn--primary auth-submit-btn">
+          Verifikasi ke GitHub &amp; Masuk
+        </button>
+
+        <div id="auth-back-to-vault-wrap" class="auth-secondary-actions" hidden>
+          <button type="button" id="btn-back-to-vault" class="btn btn--outline-dark btn--sm">
+            Kembali ke Kunci Vault Lokal
+          </button>
         </div>
-      </aside>
+      </form>
+
+      <div class="auth-card__foot">
+        <a href="./index.html" class="auth-card__back-link">Kembali ke Halaman EPK Publik</a>
+        <span class="auth-card__badge">PBKDF2-SHA256 + AES-256-GCM</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- Protected Admin Studio (strictly hidden until live GitHub server verification passes) -->
+  <div id="admin-protected-app" class="admin-protected-app" hidden>
+    <header class="admin-topbar">
+      <div class="admin-topbar__inner">
+        <div class="admin-topbar__left">
+          <a href="./index.html" class="brand-link" aria-label="Kembali ke halaman EPK Eve's Lily">
+            <img src="./assets/brand/lily-icon-only.png" alt="" aria-hidden="true" class="brand-link__icon" width="28" height="27">
+            <span class="admin-topbar__title">Editor EPK</span>
+          </a>
+          <span id="admin-status" class="admin-status" data-state="ok" role="status" aria-live="polite">
+            Terverifikasi
+          </span>
+        </div>
+
+        <div class="admin-topbar__actions">
+          <a href="./index.html" id="btn-preview-epk" class="btn btn--outline-dark btn--sm">Preview EPK</a>
+          <button type="button" id="btn-download-json" class="btn btn--outline-dark btn--sm">Download epk.json</button>
+          <button type="button" id="btn-quick-publish" class="btn btn--primary btn--sm">Simpan ke GitHub</button>
+          <button type="button" id="btn-lock-session" class="btn btn--danger btn--sm">Kunci &amp; Keluar</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="admin-shell">
+      <div>
+        <button
+          type="button"
+          id="admin-nav-toggle"
+          class="btn btn--outline-dark admin-nav-mobile-trigger"
+          aria-expanded="false"
+          aria-controls="admin-sidebar"
+        >
+          <span id="admin-mobile-active-label">Bagian: Hero &amp; Identitas</span>
+          <span>Pilih Bagian</span>
+        </button>
+
+        <aside id="admin-sidebar" class="admin-sidebar" data-open="false" aria-label="Navigasi bagian editor EPK">
+          <div>
+            <p class="admin-nav-group__label">Konten EPK</p>
+            <div class="admin-nav-list" role="tablist" aria-orientation="vertical">
+              <button type="button" class="admin-nav-btn" data-section="hero" aria-current="true">
+                <span>Hero &amp; Identitas</span>
+              </button>
+              <button type="button" class="admin-nav-btn" data-section="biography">
+                <span>Biografi &amp; Filosofi</span>
+              </button>
+              <button type="button" class="admin-nav-btn" data-section="members">
+                <span>Personel</span>
+                <span class="admin-nav-btn__count" data-count="members">0</span>
+              </button>
+              <button type="button" class="admin-nav-btn" data-section="discography">
+                <span>Discography</span>
+                <span class="admin-nav-btn__count" data-count="discography">0</span>
+              </button>
+              <button type="button" class="admin-nav-btn" data-section="press">
+                <span>Press Photos</span>
+                <span class="admin-nav-btn__count" data-count="press">0</span>
+              </button>
+              <button type="button" class="admin-nav-btn" data-section="shows">
+                <span>Jadwal Panggung</span>
+                <span class="admin-nav-btn__count" data-count="shows">0</span>
+              </button>
+              <button type="button" class="admin-nav-btn" data-section="videos">
+                <span>Video YouTube</span>
+                <span class="admin-nav-btn__count" data-count="videos">0</span>
+              </button>
+              <button type="button" class="admin-nav-btn" data-section="contact">
+                <span>Kontak &amp; DSP</span>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <p class="admin-nav-group__label">Keamanan &amp; Cadangan</p>
+            <div class="admin-nav-list">
+              <button type="button" class="admin-nav-btn" data-section="github">
+                <span>Keamanan &amp; GitHub</span>
+              </button>
+              <button type="button" class="admin-nav-btn" data-section="backup">
+                <span>Impor / Reset JSON</span>
+              </button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <main id="admin-workspace" class="admin-main" aria-live="polite">
+        <div class="state-box" role="status">
+          <p class="state-box__title">Menyiapkan Editor EPK Eve's Lily...</p>
+          <p class="state-box__desc">Mengambil data dari data/epk.json dan memeriksa draft lokal.</p>
+        </div>
+      </main>
     </div>
 
-    <main id="admin-workspace" class="admin-main" aria-live="polite">
-      <div class="state-box" role="status">
-        <p class="state-box__title">Menyiapkan Editor EPK Eve's Lily...</p>
-        <p class="state-box__desc">Mengambil data dari data/epk.json dan memeriksa draft lokal.</p>
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <p style="margin:0">Editor EPK Eve's Lily. Terlindungi Zero-Trust GitHub Gate, AES-256-GCM, dan auto-lock 15 menit.</p>
+        <nav class="site-footer__nav" aria-label="Tautan cepat EPK">
+          <a href="./index.html" class="site-footer__link">Lihat Home</a>
+          <a href="./press-photos.html" class="site-footer__link">Press Photos</a>
+          <a href="./biography.html" class="site-footer__link">Biography</a>
+          <a href="./schedule.html" class="site-footer__link">Schedule</a>
+        </nav>
       </div>
-    </main>
+    </footer>
   </div>
-
-  <footer class="site-footer">
-    <div class="container site-footer__inner">
-      <p style="margin:0">Editor EPK Eve's Lily. Token GitHub hanya disimpan di browser ini dan tidak pernah masuk ke file epk.json.</p>
-      <nav class="site-footer__nav" aria-label="Tautan cepat EPK">
-        <a href="./index.html" class="site-footer__link">Lihat Home</a>
-        <a href="./press-photos.html" class="site-footer__link">Press Photos</a>
-        <a href="./biography.html" class="site-footer__link">Biography</a>
-        <a href="./schedule.html" class="site-footer__link">Schedule</a>
-      </nav>
-    </div>
-  </footer>
 
   <script type="module" src="./js/page-admin.js"></script>
 </body>

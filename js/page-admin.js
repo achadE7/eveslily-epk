@@ -1,7 +1,25 @@
 import {
+  authenticatedRepoFetch,
+  clearEncryptedVault,
+  decryptStoredVault,
+  getFailedAttemptCount,
+  getMaxFailedAttempts,
+  getSessionPublicInfo,
+  getStoredVaultMeta,
+  hasEncryptedVault,
+  IDLE_LOCK_MS,
+  isSessionUnlocked,
+  isWebCryptoAvailable,
+  LOCKED_REPO,
+  lockSessionInMemory,
+  purgeLegacyPlaintextConfig,
+  saveEncryptedVault,
+  setActiveSession,
+  verifyGitHubAccess
+} from './admin-security.js';
+import {
   clearLocalDraft,
   fetchPublishedData,
-  GITHUB_CONFIG_KEY,
   loadEpkData,
   saveLocalDraft
 } from './data-store.js';
@@ -11,7 +29,10 @@ let epkData = null;
 let activeSection = 'hero';
 let showFilterQuery = '';
 let hasUnsavedChanges = false;
-let ghConfig = loadGhConfig();
+let editorChromeBound = false;
+let idleTimerId = 0;
+let lastActivityAt = 0;
+let lastActivityMark = 0;
 
 const SECTION_LABELS = {
   hero: 'Hero & Identitas',
@@ -22,29 +43,9 @@ const SECTION_LABELS = {
   shows: 'Jadwal Panggung',
   videos: 'Video YouTube',
   contact: 'Kontak & DSP',
-  github: 'Sinkronisasi GitHub',
+  github: 'Keamanan & GitHub',
   backup: 'Impor / Reset JSON'
 };
-
-function loadGhConfig() {
-  try {
-    const raw = window.localStorage.getItem(GITHUB_CONFIG_KEY);
-    if (!raw) return { owner: '', repo: '', branch: 'main', token: '' };
-    const parsed = JSON.parse(raw);
-    return {
-      owner: parsed.owner || '',
-      repo: parsed.repo || '',
-      branch: parsed.branch || 'main',
-      token: parsed.token || ''
-    };
-  } catch {
-    return { owner: '', repo: '', branch: 'main', token: '' };
-  }
-}
-
-function saveGhConfig() {
-  window.localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(ghConfig));
-}
 
 function setStatus(text, state = 'ok') {
   const el = document.getElementById('admin-status');
@@ -105,57 +106,50 @@ function base64ToUtf8(b64) {
 }
 
 function isGhConfigured() {
-  return Boolean(ghConfig.owner.trim() && ghConfig.repo.trim() && ghConfig.token.trim());
-}
-
-async function githubFetch(path, options = {}) {
-  const headers = {
-    Accept: 'application/vnd.github+json',
-    Authorization: `Bearer ${ghConfig.token.trim()}`,
-    'X-GitHub-Api-Version': '2022-11-28',
-    ...(options.headers || {})
-  };
-  const res = await fetch(`https://api.github.com${path}`, { ...options, headers });
-  const body = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new Error(body.message || `GitHub API error (HTTP ${res.status})`);
-  }
-  return body;
+  return isSessionUnlocked();
 }
 
 async function getRemoteFileSha(filePath) {
-  const owner = encodeURIComponent(ghConfig.owner.trim());
-  const repo = encodeURIComponent(ghConfig.repo.trim());
-  const branch = encodeURIComponent(ghConfig.branch.trim() || 'main');
+  const session = getSessionPublicInfo();
+  const branch = encodeURIComponent(session?.branch || LOCKED_REPO.defaultBranch);
   try {
-    const file = await githubFetch(`/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`);
+    const file = await authenticatedRepoFetch(`/contents/${filePath}?ref=${branch}`);
     return file.sha || null;
   } catch (err) {
+    if (err?.authRevoked) {
+      lockAdminStudio(err.message, 'error');
+      throw err;
+    }
     if (String(err.message).toLowerCase().includes('not found')) return null;
     throw err;
   }
 }
 
 async function commitFileToGitHub(filePath, base64Content, message) {
-  const owner = encodeURIComponent(ghConfig.owner.trim());
-  const repo = encodeURIComponent(ghConfig.repo.trim());
-  const branch = ghConfig.branch.trim() || 'main';
+  const session = getSessionPublicInfo();
+  const branch = session?.branch || LOCKED_REPO.defaultBranch;
   const sha = await getRemoteFileSha(filePath);
 
   const payload = { message, content: base64Content, branch };
   if (sha) payload.sha = sha;
 
-  return githubFetch(`/repos/${owner}/${repo}/contents/${filePath}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
+  try {
+    return await authenticatedRepoFetch(`/contents/${filePath}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch (err) {
+    if (err?.authRevoked) {
+      lockAdminStudio(err.message, 'error');
+    }
+    throw err;
+  }
 }
 
 async function publishJsonToGitHub(commitMsg) {
   if (!isGhConfigured()) {
-    switchSection('github');
-    showToast('Lengkapi pengaturan GitHub dulu sebelum menyimpan ke repository.');
+    lockAdminStudio('Sesi autentikasi terkunci. Silakan masuk kembali untuk mempublikasikan perubahan.', 'info');
     return null;
   }
 
@@ -1379,55 +1373,76 @@ function renderContactSectionAdmin(workspace) {
 }
 
 function renderGitHubSection(workspace) {
+  const session = getSessionPublicInfo();
+  const vaultMeta = getStoredVaultMeta();
+  const repoFull = session?.repoFullName || `${LOCKED_REPO.owner}/${LOCKED_REPO.repo}`;
+  const branch = session?.branch || LOCKED_REPO.defaultBranch;
+  const modeLabel =
+    session?.mode === 'vault' || vaultMeta
+      ? 'Vault Terenkripsi AES-256-GCM (PBKDF2 310k)'
+      : 'Sesi Sementara (RAM Saja, Tanpa Simpan)';
+
   workspace.innerHTML = `
     <section class="admin-panel" aria-labelledby="panel-gh-title">
       <div class="admin-panel__head">
         <div>
-          <h2 id="panel-gh-title" class="admin-panel__title">Sinkronisasi Langsung ke GitHub</h2>
-          <p class="admin-panel__desc">Hubungkan repository GitHub kamu agar tombol "Simpan ke GitHub" dan upload foto langsung memperbarui situs GitHub Pages tanpa perlu menyentuh kode.</p>
+          <h2 id="panel-gh-title" class="admin-panel__title">Keamanan &amp; Sinkronisasi GitHub</h2>
+          <p class="admin-panel__desc">Editor terkunci ke repository <strong>${escapeHtml(repoFull)}</strong> dan diverifikasi langsung oleh server GitHub. Token tidak pernah disimpan polos dan tidak pernah ditampilkan kembali di layar.</p>
         </div>
       </div>
 
-      <ol class="guide-steps">
-        <li>Buat repository GitHub untuk EPK ini (misalnya <strong>eveslily-epk</strong>) dan aktifkan <strong>Settings &gt; Pages &gt; Deploy from branch main</strong>.</li>
-        <li>Buka <strong>GitHub Settings &gt; Developer settings &gt; Personal access tokens &gt; Fine-grained tokens</strong>, lalu buat token baru khusus untuk <strong>Only select repositories</strong> (pilih repo EPK ini) dengan izin <strong>Contents: Read and write</strong>.</li>
-        <li>Masukkan detail repo dan token di bawah. Token hanya disimpan di browser ini (<code>localStorage</code>) dan tidak pernah ikut tersimpan ke file <code>epk.json</code>.</li>
-      </ol>
+      <div class="security-summary-grid">
+        <div class="security-stat">
+          <p class="security-stat__label">Repository Terkunci</p>
+          <p class="security-stat__value">${escapeHtml(repoFull)} (${escapeHtml(branch)})</p>
+        </div>
+        <div class="security-stat">
+          <p class="security-stat__label">Otorisasi Server</p>
+          <p class="security-stat__value security-stat__value--ok">Terverifikasi (Izin Push Aktif)</p>
+        </div>
+        <div class="security-stat">
+          <p class="security-stat__label">Penyimpanan Token</p>
+          <p class="security-stat__value">${escapeHtml(modeLabel)}</p>
+        </div>
+        <div class="security-stat">
+          <p class="security-stat__label">Auto-Lock Idle</p>
+          <p class="security-stat__value">Otomatis terkunci setelah ${Math.round(IDLE_LOCK_MS / 60000)} menit</p>
+        </div>
+      </div>
 
       <div id="gh-feedback" class="feedback-box" hidden role="status" aria-live="polite"></div>
 
       <div class="field-grid">
-        <div class="field">
-          <label class="field__label" for="gh-owner">Username / Organisasi GitHub</label>
-          <input id="gh-owner" class="field__input" value="${escapeHtml(ghConfig.owner)}" placeholder="Contoh: eveslily">
-        </div>
-        <div class="field">
-          <label class="field__label" for="gh-repo">Nama Repository</label>
-          <input id="gh-repo" class="field__input" value="${escapeHtml(ghConfig.repo)}" placeholder="Contoh: eveslily-epk">
-        </div>
-        <div class="field">
-          <label class="field__label" for="gh-branch">Branch</label>
-          <input id="gh-branch" class="field__input" value="${escapeHtml(ghConfig.branch || 'main')}" placeholder="main">
-        </div>
-        <div class="field">
-          <label class="field__label" for="gh-commit">Pesan Commit</label>
-          <input id="gh-commit" class="field__input" value="Update konten EPK Eve's Lily" placeholder="Pesan perubahan">
-        </div>
         <div class="field field--full">
-          <label class="field__label" for="gh-token">Fine-Grained Personal Access Token</label>
-          <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
-            <input id="gh-token" class="field__input" style="flex:1;min-width:220px" type="password" autocomplete="off" value="${escapeHtml(ghConfig.token)}" placeholder="github_pat_...">
-            <button type="button" id="gh-toggle-token" class="btn btn--outline-dark btn--sm">Tampilkan Token</button>
-          </div>
+          <label class="field__label" for="gh-commit">Pesan Commit Publikasi</label>
+          <input id="gh-commit" class="field__input" value="Update konten EPK Eve's Lily" placeholder="Pesan perubahan">
         </div>
       </div>
 
       <div style="display:flex;flex-wrap:wrap;gap:0.65rem">
         <button type="button" id="gh-publish-btn" class="btn btn--primary">Simpan &amp; Publikasikan ke GitHub</button>
-        <button type="button" id="gh-test-btn" class="btn btn--outline-dark">Uji Koneksi Repo</button>
-        <button type="button" id="gh-pull-btn" class="btn btn--outline-dark">Ambil Data dari GitHub</button>
-        <button type="button" id="gh-clear-token-btn" class="btn btn--danger btn--sm">Hapus Token dari Browser</button>
+        <button type="button" id="gh-test-btn" class="btn btn--outline-dark">Verifikasi Ulang Koneksi</button>
+        <button type="button" id="gh-pull-btn" class="btn btn--outline-dark">Ambil Data Terbaru dari GitHub</button>
       </div>
+
+      <div class="item-card">
+        <div class="item-card__head">
+          <h3 class="item-card__title">Kontrol Sesi &amp; Vault Enkripsi</h3>
+        </div>
+        <p class="field__hint">
+          Klik <strong>Kunci Sesi Sekarang</strong> untuk menghapus token dari memori RAM segera (vault terenkripsi tetap aman di browser ini). Klik <strong>Hapus Vault &amp; Logout Penuh</strong> jika kamu memakai perangkat bersama atau ingin mengganti token / passphrase.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:0.65rem">
+          <button type="button" id="gh-lock-now-btn" class="btn btn--outline-dark btn--sm">Kunci Sesi Sekarang</button>
+          <button type="button" id="gh-wipe-vault-btn" class="btn btn--danger btn--sm">Hapus Vault &amp; Logout Penuh</button>
+        </div>
+      </div>
+
+      <ol class="guide-steps">
+        <li>Aktifkan <strong>Two-Factor Authentication (2FA)</strong> pada akun GitHub kamu (Settings &gt; Password and authentication).</li>
+        <li>Gunakan <strong>Fine-Grained Personal Access Token</strong> dengan masa berlaku 30 sampai 90 hari, hanya untuk <strong>Only select repositories: ${escapeHtml(repoFull)}</strong> dan izin minimal <strong>Contents: Read and write</strong>.</li>
+        <li>Jika token dicurigai bocor, segera klik <strong>Revoke</strong> di GitHub Settings; gerbang admin ini akan otomatis menolak token lama saat verifikasi server.</li>
+      </ol>
     </section>
   `;
 
@@ -1438,45 +1453,26 @@ function renderGitHubSection(workspace) {
     fb.hidden = false;
   }
 
-  workspace.querySelector('#gh-owner')?.addEventListener('input', (e) => { ghConfig.owner = e.target.value; saveGhConfig(); });
-  workspace.querySelector('#gh-repo')?.addEventListener('input', (e) => { ghConfig.repo = e.target.value; saveGhConfig(); });
-  workspace.querySelector('#gh-branch')?.addEventListener('input', (e) => { ghConfig.branch = e.target.value; saveGhConfig(); });
-  workspace.querySelector('#gh-token')?.addEventListener('input', (e) => { ghConfig.token = e.target.value; saveGhConfig(); });
-
-  workspace.querySelector('#gh-toggle-token')?.addEventListener('click', (e) => {
-    const inp = workspace.querySelector('#gh-token');
-    const isPass = inp.type === 'password';
-    inp.type = isPass ? 'text' : 'password';
-    e.currentTarget.textContent = isPass ? 'Sembunyikan Token' : 'Tampilkan Token';
-  });
-
   workspace.querySelector('#gh-test-btn')?.addEventListener('click', async () => {
-    if (!isGhConfigured()) {
-      showFeedback('Lengkapi Username GitHub, Nama Repository, dan Token terlebih dahulu.', 'error');
-      return;
-    }
-    showFeedback('Menguji koneksi ke repository GitHub...', 'info');
+    showFeedback('Memverifikasi ulang koneksi & izin tulis ke server GitHub...', 'info');
     try {
-      const owner = encodeURIComponent(ghConfig.owner.trim());
-      const repo = encodeURIComponent(ghConfig.repo.trim());
-      const info = await githubFetch(`/repos/${owner}/${repo}`);
-      showFeedback(`Terhubung ke ${info.full_name} (branch default: ${info.default_branch}). Siap menyimpan data dan mengunggah foto.`, 'ok');
+      const info = await authenticatedRepoFetch('');
+      const canPush = Boolean(info?.permissions?.push || info?.permissions?.admin);
+      if (!canPush) {
+        lockAdminStudio('Izin tulis pada repository sudah tidak aktif. Sesi dikunci.', 'error');
+        return;
+      }
+      showFeedback(`Terverifikasi ke ${info.full_name} (branch aktif: ${branch}). Izin tulis aktif.`, 'ok');
     } catch (err) {
-      showFeedback(`Koneksi gagal: ${err.message}. Pastikan nama repo dan izin token Contents (Read & Write) sudah benar.`, 'error');
+      if (err?.authRevoked) return;
+      showFeedback(`Verifikasi gagal: ${err.message}`, 'error');
     }
   });
 
   workspace.querySelector('#gh-pull-btn')?.addEventListener('click', async () => {
-    if (!isGhConfigured()) {
-      showFeedback('Lengkapi pengaturan GitHub dulu.', 'error');
-      return;
-    }
     showFeedback('Mengambil data/epk.json terbaru dari GitHub...', 'info');
     try {
-      const owner = encodeURIComponent(ghConfig.owner.trim());
-      const repo = encodeURIComponent(ghConfig.repo.trim());
-      const branch = encodeURIComponent(ghConfig.branch.trim() || 'main');
-      const file = await githubFetch(`/repos/${owner}/${repo}/contents/data/epk.json?ref=${branch}`);
+      const file = await authenticatedRepoFetch(`/contents/data/epk.json?ref=${encodeURIComponent(branch)}`);
       const parsed = JSON.parse(base64ToUtf8(file.content));
       epkData = parsed;
       clearLocalDraft();
@@ -1485,34 +1481,34 @@ function renderGitHubSection(workspace) {
       setStatus('Data terbaru diambil dari GitHub', 'ok');
       showFeedback('Berhasil mengambil data/epk.json terbaru dari GitHub ke editor.', 'ok');
     } catch (err) {
+      if (err?.authRevoked) return;
       showFeedback(`Gagal mengambil data: ${err.message}`, 'error');
     }
   });
 
   workspace.querySelector('#gh-publish-btn')?.addEventListener('click', async () => {
-    if (!isGhConfigured()) {
-      showFeedback('Lengkapi Username GitHub, Nama Repository, dan Token terlebih dahulu.', 'error');
-      return;
-    }
     const msg = workspace.querySelector('#gh-commit')?.value.trim() || "Update EPK Eve's Lily";
     showFeedback('Menyimpan data/epk.json ke GitHub...', 'info');
     try {
       const res = await publishJsonToGitHub(msg);
+      if (!res) return;
       const commitSha = res?.commit?.sha ? res.commit.sha.slice(0, 7) : '';
       showFeedback(`Berhasil dipublikasikan ke GitHub (commit ${commitSha}). GitHub Pages akan memperbarui halaman dalam 1 sampai 2 menit.`, 'ok');
       showToast('Data EPK berhasil disimpan ke GitHub.');
     } catch (err) {
+      if (err?.authRevoked) return;
       setStatus('Gagal simpan ke GitHub', 'error');
       showFeedback(`Gagal menyimpan ke GitHub: ${err.message}`, 'error');
     }
   });
 
-  workspace.querySelector('#gh-clear-token-btn')?.addEventListener('click', () => {
-    ghConfig.token = '';
-    saveGhConfig();
-    const inp = workspace.querySelector('#gh-token');
-    if (inp) inp.value = '';
-    showFeedback('Token dihapus dari browser ini.', 'ok');
+  workspace.querySelector('#gh-lock-now-btn')?.addEventListener('click', () => {
+    lockAdminStudio('Sesi dikunci. Token telah dihapus dari memori RAM.', 'info');
+  });
+
+  workspace.querySelector('#gh-wipe-vault-btn')?.addEventListener('click', () => {
+    clearEncryptedVault();
+    lockAdminStudio('Vault terenkripsi dan sesi aktif telah dihapus sepenuhnya dari browser ini.', 'ok');
   });
 }
 
@@ -1636,7 +1632,126 @@ function switchSection(sectionId) {
   renderWorkspace();
 }
 
-async function boot() {
+function showGateFeedback(text, kind = 'info') {
+  const fb = document.getElementById('auth-feedback');
+  if (!fb) return;
+  if (!text) {
+    fb.hidden = true;
+    fb.textContent = '';
+    return;
+  }
+  fb.textContent = text;
+  fb.dataset.kind = kind;
+  fb.hidden = false;
+}
+
+function updateVaultAttemptHint() {
+  const hint = document.getElementById('vault-attempts-hint');
+  if (!hint) return;
+  const used = getFailedAttemptCount();
+  const max = getMaxFailedAttempts();
+  const left = Math.max(0, max - used);
+  hint.textContent =
+    used > 0
+      ? `Sisa percobaan sebelum vault otomatis terhapus: ${left} dari ${max}.`
+      : `Vault akan otomatis terhapus setelah ${max} kali percobaan salah.`;
+}
+
+function setGateMode(mode) {
+  const unlockForm = document.getElementById('auth-unlock-form');
+  const tokenForm = document.getElementById('auth-token-form');
+  const backToVaultWrap = document.getElementById('auth-back-to-vault-wrap');
+  const vaultExists = hasEncryptedVault();
+
+  if (mode === 'unlock' && vaultExists) {
+    if (unlockForm) unlockForm.hidden = false;
+    if (tokenForm) tokenForm.hidden = true;
+    updateVaultAttemptHint();
+    document.getElementById('vault-passphrase')?.focus();
+  } else {
+    if (unlockForm) unlockForm.hidden = true;
+    if (tokenForm) tokenForm.hidden = false;
+    if (backToVaultWrap) backToVaultWrap.hidden = !vaultExists;
+    document.getElementById('login-gh-token')?.focus();
+  }
+}
+
+function stopIdleMonitor() {
+  if (idleTimerId) {
+    window.clearTimeout(idleTimerId);
+    idleTimerId = 0;
+  }
+}
+
+function scheduleIdleLock() {
+  stopIdleMonitor();
+  if (!isSessionUnlocked()) return;
+  lastActivityAt = Date.now();
+  idleTimerId = window.setTimeout(() => {
+    if (isSessionUnlocked()) {
+      lockAdminStudio(
+        `Sesi dikunci otomatis setelah ${Math.round(IDLE_LOCK_MS / 60000)} menit tidak aktif. Buka kunci kembali untuk melanjutkan.`,
+        'info'
+      );
+    }
+  }, IDLE_LOCK_MS);
+}
+
+function recordUserActivity() {
+  if (!isSessionUnlocked()) return;
+  const now = Date.now();
+  if (now - lastActivityMark < 2000) return;
+  lastActivityMark = now;
+  scheduleIdleLock();
+}
+
+function checkElapsedIdleOnResume() {
+  if (!isSessionUnlocked()) return;
+  if (lastActivityAt && Date.now() - lastActivityAt >= IDLE_LOCK_MS) {
+    lockAdminStudio(
+      `Sesi dikunci otomatis setelah ${Math.round(IDLE_LOCK_MS / 60000)} menit tidak aktif. Buka kunci kembali untuk melanjutkan.`,
+      'info'
+    );
+  }
+}
+
+function lockAdminStudio(reasonMessage = '', kind = 'info') {
+  if (epkData && hasUnsavedChanges) {
+    saveLocalDraft(epkData);
+  }
+  stopIdleMonitor();
+  lockSessionInMemory();
+  epkData = null;
+
+  const workspace = document.getElementById('admin-workspace');
+  if (workspace) workspace.innerHTML = '';
+
+  const protectedApp = document.getElementById('admin-protected-app');
+  const gate = document.getElementById('admin-gate');
+  if (protectedApp) protectedApp.hidden = true;
+  if (gate) gate.hidden = false;
+
+  document.body.dataset.locked = 'true';
+  document.title = "Akses Terkunci | Editor EPK Eve's Lily";
+
+  // Clear any sensitive fields on lock
+  const passEl = document.getElementById('vault-passphrase');
+  const tokEl = document.getElementById('login-gh-token');
+  const newPassEl = document.getElementById('login-passphrase');
+  const confPassEl = document.getElementById('login-passphrase-confirm');
+  if (passEl) passEl.value = '';
+  if (tokEl) tokEl.value = '';
+  if (newPassEl) newPassEl.value = '';
+  if (confPassEl) confPassEl.value = '';
+
+  setGateMode(hasEncryptedVault() ? 'unlock' : 'token');
+  showGateFeedback(reasonMessage, kind);
+}
+
+function bindEditorChromeOnce() {
+  if (editorChromeBound) return;
+  editorChromeBound = true;
+
   const sidebar = document.getElementById('admin-sidebar');
   const navToggle = document.getElementById('admin-nav-toggle');
 
@@ -1664,21 +1779,48 @@ async function boot() {
     if (epkData && hasUnsavedChanges) saveLocalDraft(epkData);
   });
 
+  document.getElementById('btn-lock-session')?.addEventListener('click', () => {
+    lockAdminStudio('Sesi Editor EPK telah dikunci dengan aman.', 'info');
+  });
+
   document.getElementById('btn-quick-publish')?.addEventListener('click', async () => {
     if (!isGhConfigured()) {
-      switchSection('github');
-      showToast('Isi pengaturan repository & token GitHub untuk menyimpan langsung.');
+      lockAdminStudio('Sesi autentikasi terkunci. Masuk kembali untuk menyimpan ke GitHub.', 'info');
       return;
     }
     try {
-      await publishJsonToGitHub("Update konten EPK Eve's Lily");
-      showToast('Perubahan EPK berhasil disimpan ke GitHub.');
+      const res = await publishJsonToGitHub("Update konten EPK Eve's Lily");
+      if (res) showToast('Perubahan EPK berhasil disimpan ke GitHub.');
     } catch (err) {
+      if (err?.authRevoked) return;
       setStatus('Gagal simpan ke GitHub', 'error');
       showToast(`Gagal simpan ke GitHub: ${err.message}`);
       switchSection('github');
     }
   });
+
+  ['pointerdown', 'keydown', 'input', 'scroll'].forEach((evt) => {
+    window.addEventListener(evt, recordUserActivity, { passive: true });
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) checkElapsedIdleOnResume();
+  });
+  window.addEventListener('focus', checkElapsedIdleOnResume);
+}
+
+async function unlockAdminStudio() {
+  if (!isSessionUnlocked()) return;
+  bindEditorChromeOnce();
+
+  const gate = document.getElementById('admin-gate');
+  const protectedApp = document.getElementById('admin-protected-app');
+  if (gate) gate.hidden = true;
+  if (protectedApp) protectedApp.hidden = false;
+
+  document.body.dataset.locked = 'false';
+  document.title = "Editor EPK | Eve's Lily Content Studio";
+  showGateFeedback('');
+  scheduleIdleLock();
 
   try {
     const { data, source } = await loadEpkData({ preferDraft: true });
@@ -1688,7 +1830,7 @@ async function boot() {
       hasUnsavedChanges = true;
       setStatus('Memuat draft lokal (belum dipublikasikan)', 'dirty');
     } else {
-      setStatus('Sesuai data/epk.json terbit', 'ok');
+      setStatus('Terverifikasi · Sesuai data/epk.json terbit', 'ok');
     }
     switchSection('hero');
   } catch (err) {
@@ -1705,4 +1847,154 @@ async function boot() {
   }
 }
 
-boot();
+function initAuthGate() {
+  const purgedLegacy = purgeLegacyPlaintextConfig();
+  const cryptoOk = isWebCryptoAvailable();
+  const saveVaultChk = document.getElementById('login-save-vault');
+  const vaultFields = document.getElementById('login-vault-fields');
+
+  if (!cryptoOk && saveVaultChk && vaultFields) {
+    saveVaultChk.checked = false;
+    saveVaultChk.disabled = true;
+    vaultFields.hidden = true;
+  }
+
+  saveVaultChk?.addEventListener('change', () => {
+    if (vaultFields) vaultFields.hidden = !saveVaultChk.checked;
+  });
+
+  document.getElementById('btn-switch-to-token')?.addEventListener('click', () => {
+    showGateFeedback('');
+    setGateMode('token');
+  });
+
+  document.getElementById('btn-back-to-vault')?.addEventListener('click', () => {
+    showGateFeedback('');
+    setGateMode('unlock');
+  });
+
+  document.getElementById('btn-wipe-vault-gate')?.addEventListener('click', () => {
+    clearEncryptedVault();
+    setGateMode('token');
+    showGateFeedback('Vault terenkripsi di browser ini telah dihapus. Kamu dapat masuk kembali dengan Fine-Grained Token GitHub.', 'ok');
+  });
+
+  // Mode A: Decrypt local AES-256-GCM vault + verify live with GitHub server
+  const unlockForm = document.getElementById('auth-unlock-form');
+  unlockForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const passInput = document.getElementById('vault-passphrase');
+    const submitBtn = document.getElementById('btn-vault-unlock');
+    const passphrase = passInput?.value || '';
+
+    if (!passphrase) {
+      showGateFeedback('Masukkan Passphrase Lokal terlebih dahulu.', 'error');
+      passInput?.focus();
+      return;
+    }
+
+    if (submitBtn) submitBtn.disabled = true;
+    showGateFeedback('Membuka enkripsi AES-256-GCM & memverifikasi token ke server GitHub...', 'info');
+
+    try {
+      const { token, branch } = await decryptStoredVault(passphrase);
+      if (passInput) passInput.value = '';
+      const verified = await verifyGitHubAccess(token, branch);
+      setActiveSession({
+        token,
+        branch: verified.branch,
+        mode: 'vault',
+        repoFullName: verified.fullName
+      });
+      await unlockAdminStudio();
+    } catch (err) {
+      if (passInput) passInput.value = '';
+      updateVaultAttemptHint();
+      if (err?.vaultWiped) {
+        setGateMode('token');
+      }
+      showGateFeedback(err.message || 'Gagal membuka kunci vault.', 'error');
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+
+  // Mode B: Authenticate directly with GitHub server + optional AES-256-GCM vault encryption
+  const tokenForm = document.getElementById('auth-token-form');
+  tokenForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const tokenInput = document.getElementById('login-gh-token');
+    const branchInput = document.getElementById('login-gh-branch');
+    const passInput = document.getElementById('login-passphrase');
+    const confirmInput = document.getElementById('login-passphrase-confirm');
+    const submitBtn = document.getElementById('btn-token-login');
+
+    const token = tokenInput?.value.trim() || '';
+    const branch = branchInput?.value.trim() || LOCKED_REPO.defaultBranch;
+    const wantVault = Boolean(saveVaultChk?.checked && cryptoOk);
+    const passphrase = passInput?.value || '';
+    const confirmPass = confirmInput?.value || '';
+
+    if (!token) {
+      showGateFeedback('Masukkan GitHub Fine-Grained Personal Access Token terlebih dahulu.', 'error');
+      tokenInput?.focus();
+      return;
+    }
+
+    if (wantVault) {
+      if (passphrase.length < 8) {
+        showGateFeedback('Passphrase lokal wajib minimal 8 karakter agar enkripsi AES-256-GCM kuat.', 'error');
+        passInput?.focus();
+        return;
+      }
+      if (passphrase !== confirmPass) {
+        showGateFeedback('Konfirmasi Passphrase lokal tidak sama. Periksa kembali ketikan kamu.', 'error');
+        confirmInput?.focus();
+        return;
+      }
+    }
+
+    if (submitBtn) submitBtn.disabled = true;
+    showGateFeedback(`Memverifikasi izin tulis ke server GitHub (${LOCKED_REPO.owner}/${LOCKED_REPO.repo})...`, 'info');
+
+    try {
+      const verified = await verifyGitHubAccess(token, branch);
+      if (wantVault) {
+        showGateFeedback('Token terverifikasi. Mengenkripsi vault dengan PBKDF2-SHA256 & AES-256-GCM...', 'info');
+        await saveEncryptedVault(token, passphrase, verified.branch);
+      }
+      // Wipe sensitive inputs from DOM immediately after verification
+      if (tokenInput) tokenInput.value = '';
+      if (passInput) passInput.value = '';
+      if (confirmInput) confirmInput.value = '';
+
+      setActiveSession({
+        token,
+        branch: verified.branch,
+        mode: wantVault ? 'vault' : 'ephemeral',
+        repoFullName: verified.fullName
+      });
+      await unlockAdminStudio();
+    } catch (err) {
+      showGateFeedback(err.message || 'Autentikasi ke GitHub gagal.', 'error');
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+
+  setGateMode(hasEncryptedVault() ? 'unlock' : 'token');
+
+  if (purgedLegacy) {
+    showGateFeedback(
+      'Pembaruan Keamanan: token lama yang sebelumnya tersimpan polos telah dihapus otomatis dari browser. Silakan masuk ulang dan buat Passphrase Lokal untuk enkripsi AES-256-GCM.',
+      'info'
+    );
+  } else if (!cryptoOk) {
+    showGateFeedback(
+      'Mode Sesi Sementara aktif: penyimpanan vault terenkripsi membutuhkan HTTPS atau localhost.',
+      'info'
+    );
+  }
+}
+
+initAuthGate();
